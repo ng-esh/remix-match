@@ -17,3 +17,8 @@ Let’s give you an example of what a site could look like. Say you want to make
 3. The first two steps require mentor approval to proceed, but after that, you are free to continue working on the project after you submit your work. For instance, you don’t need your mentor to approve your database schema before you start working on your site. Likewise, you don’t need your mentor to approve the first iteration of your site before you start polishing it.
 4. If you get stuck, there is a wealth of resources at your disposal. The course contains all of the material you will need to complete this project, but a well-phrased Google search might yield you an immediate solution to your problem. Don’t forget that your Slack community, TAs, and your mentor there to help you out.
 5.Make sure you use a free API or create your own API and deploy your project on Heroku, so everyone can see your work!
+
+
+
+## API
+Spotify Api: https://developer.spotify.com/documentation/web-api?ref=apilist.fun

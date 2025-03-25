@@ -1,0 +1,57 @@
+
+ReMixMatch Database Schema
+==========================
+
+1. users
+--------
+- id: SERIAL PRIMARY KEY (PK)
+- email: TEXT UNIQUE NOT NULL
+- password: TEXT NOT NULL
+- username: TEXT NOT NULL
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+2. playlists
+------------
+- id: SERIAL PRIMARY KEY (PK)
+- user_id: INTEGER REFERENCES users(id) ON DELETE CASCADE (FK)
+- name: TEXT NOT NULL
+- is_public: BOOLEAN DEFAULT TRUE
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+3. playlist_songs
+-----------------
+- id: SERIAL PRIMARY KEY (PK)
+- playlist_id: INTEGER REFERENCES playlists(id) ON DELETE CASCADE (FK)
+- spotify_track_id: TEXT NOT NULL
+- added_by: INTEGER REFERENCES users(id) ON DELETE SET NULL (FK)
+- added_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+4. shares
+---------
+- id: SERIAL PRIMARY KEY (PK)
+- user_id: INTEGER REFERENCES users(id) ON DELETE CASCADE (FK)
+- spotify_track_id: TEXT NOT NULL
+- message: TEXT
+- created_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+5. votes
+--------
+- id: SERIAL PRIMARY KEY (PK)
+- user_id: INTEGER REFERENCES users(id) ON DELETE CASCADE (FK)
+- spotify_track_id: TEXT NOT NULL
+- voted_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+6. listening_parties
+--------------------
+- id: SERIAL PRIMARY KEY (PK)
+- host_id: INTEGER REFERENCES users(id) ON DELETE CASCADE (FK)
+- playlist_id: INTEGER REFERENCES playlists(id) ON DELETE SET NULL (FK)
+- start_time: TIMESTAMP NOT NULL
+- end_time: TIMESTAMP
+
+7. party_attendees
+------------------
+- id: SERIAL PRIMARY KEY (PK)
+- party_id: INTEGER REFERENCES listening_parties(id) ON DELETE CASCADE (FK)
+- user_id: INTEGER REFERENCES users(id) ON DELETE CASCADE (FK)
+- joined_at: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
