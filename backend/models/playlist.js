@@ -104,84 +104,52 @@ class Playlist {
     return playlist;
   }
 
-    /**
-     * Update playlist name or visibility (only if the requesting user is the owner).
+  /**
+     * Update playlist name or visibility.
      *
      * @param {number} playlistId - Playlist ID.
-     * @param {number} userId - The ID of the user attempting to update the playlist.
      * @param {Object} data - Fields to update.
      * @param {string} [data.name] - New playlist name.
      * @param {boolean} [data.isPublic] - New visibility setting.
      * @returns {Object} - Updated playlist data.
      * @throws {NotFoundError} - If playlist does not exist.
-     * @throws {ForbiddenError} - If the user is not the playlist owner.
      */
-    static async update(playlistId, userId, { name, isPublic }) {
-        // Step 1: Retrieve the playlist to check ownership
-        const result = await db.query(
-        `SELECT user_id FROM playlists WHERE id = $1`,
-        [playlistId]
-        );
-    
-        const playlist = result.rows[0];
-    
-        // Step 2: If no playlist is found, throw a NotFoundError
-        if (!playlist) {
+    static async update(playlistId, { name, isPublic }) {
+    const updatedResult = await db.query(
+      `UPDATE playlists
+       SET name = COALESCE($1, name),
+           is_public = COALESCE($2, is_public)
+       WHERE id = $3
+       RETURNING id, user_id, name, is_public, created_at`,
+      [name, isPublic, playlistId]
+    );
+
+    const updatedPlaylist = updatedResult.rows[0];
+
+    if (!updatedPlaylist) {
         throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
-        }
-    
-        // Step 3: Check if the user is the owner
-        if (playlist.user_id !== userId) {
-        throw new ForbiddenError("You are not allowed to update this playlist");
-        }
-    
-        // Step 4: Update the playlist
-        const updatedResult = await db.query(
-        `UPDATE playlists
-        SET name = COALESCE($1, name),
-            is_public = COALESCE($2, is_public)
-        WHERE id = $3
-        RETURNING id, user_id, name, is_public, created_at`,
-        [name, isPublic, playlistId]
-        );
-    
-        return updatedResult.rows[0];
     }
-  
+
+    return updatedPlaylist;
+}
+
   /**
-     * Delete a playlist (only if the requesting user is the owner).
+     * Delete a playlist.
      *
-     * @param {number} playlistId - The ID of the playlist to delete.
-     * @param {number} userId - The ID of the user attempting to delete the playlist.
+     * @param {number} id - Playlist ID.
      * @returns {void}
-     * @throws {NotFoundError} - If the playlist does not exist.
-     * @throws {ForbiddenError} - If the user is not the playlist owner.
+     * @throws {NotFoundError} - If playlist does not exist.
      */
-    static async delete(playlistId, userId) {
-        // Step 1: Retrieve the playlist to check ownership
-        const result = await db.query(
-        `SELECT user_id FROM playlists WHERE id = $1`,
-        [playlistId]
-        );
-    
-        const playlist = result.rows[0];
-    
-        // Step 2: If no playlist is found, throw a NotFoundError
-        if (!playlist) {
-        throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
-        }
-    
-        // Step 3: Check if the user is the owner
-        if (playlist.user_id !== userId) {
-        throw new ForbiddenError("You are not allowed to delete this playlist");
-        }
-    
-        // Step 4: Delete the playlist
-        await db.query(
-        `DELETE FROM playlists WHERE id = $1`,
-        [playlistId]
-        );
+    static async delete(id) {
+    const result = await db.query(
+      `DELETE FROM playlists WHERE id = $1 RETURNING id`,
+      [id]
+    );
+  
+    if (result.rowCount === 0) {
+      throw new NotFoundError(`Playlist with ID ${id} not found`);
     }
+  }
   
   
 }
