@@ -1,4 +1,10 @@
 // models/playlist.js
+// Purpose of this Model
+// - Manages playlist creation, retrieval, updating, and deletion.
+// - Ensures users can only access their own playlists when needed.
+// - Retrieves public playlists for discovery.
+
+
 
 const db = require('../db');
 const {
