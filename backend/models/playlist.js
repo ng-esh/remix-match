@@ -104,32 +104,50 @@ class Playlist {
     return playlist;
   }
 
-  /**
-   * Update playlist name or visibility.
-   *
-   * @param {number} id - Playlist ID.
-   * @param {Object} data - Fields to update.
-   * @param {string} [data.name] - New playlist name.
-   * @param {boolean} [data.isPublic] - New visibility setting.
-   * @returns {Object} - Updated playlist data.
-   * @throws {NotFoundError} - If playlist does not exist.
-   */
-  static async update(id, { name, isPublic }) {
-    const result = await db.query(
-      `UPDATE playlists
-       SET name = COALESCE($1, name),
-           is_public = COALESCE($2, is_public)
-       WHERE id = $3
-       RETURNING id, user_id, name, is_public, created_at`,
-      [name, isPublic, id]
-    );
-
-    const playlist = result.rows[0];
-    if (!playlist) throw new NotFoundError(`Playlist with ID ${id} not found`);
-
-    return playlist;
-  }
-
+    /**
+     * Update playlist name or visibility (only if the requesting user is the owner).
+     *
+     * @param {number} playlistId - Playlist ID.
+     * @param {number} userId - The ID of the user attempting to update the playlist.
+     * @param {Object} data - Fields to update.
+     * @param {string} [data.name] - New playlist name.
+     * @param {boolean} [data.isPublic] - New visibility setting.
+     * @returns {Object} - Updated playlist data.
+     * @throws {NotFoundError} - If playlist does not exist.
+     * @throws {ForbiddenError} - If the user is not the playlist owner.
+     */
+    static async update(playlistId, userId, { name, isPublic }) {
+        // Step 1: Retrieve the playlist to check ownership
+        const result = await db.query(
+        `SELECT user_id FROM playlists WHERE id = $1`,
+        [playlistId]
+        );
+    
+        const playlist = result.rows[0];
+    
+        // Step 2: If no playlist is found, throw a NotFoundError
+        if (!playlist) {
+        throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
+        }
+    
+        // Step 3: Check if the user is the owner
+        if (playlist.user_id !== userId) {
+        throw new ForbiddenError("You are not allowed to update this playlist");
+        }
+    
+        // Step 4: Update the playlist
+        const updatedResult = await db.query(
+        `UPDATE playlists
+        SET name = COALESCE($1, name),
+            is_public = COALESCE($2, is_public)
+        WHERE id = $3
+        RETURNING id, user_id, name, is_public, created_at`,
+        [name, isPublic, playlistId]
+        );
+    
+        return updatedResult.rows[0];
+    }
+  
   /**
      * Delete a playlist (only if the requesting user is the owner).
      *
