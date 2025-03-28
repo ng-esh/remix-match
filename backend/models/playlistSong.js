@@ -7,7 +7,7 @@
 // models/playlistSong.js
 
 const db = require("../db");
-const { NotFoundError, BadRequestError } = require("../expressError");
+const { NotFoundError, BadRequestError, ForbiddenError } = require("../expressError");
 
 class PlaylistSong {
   /**
@@ -35,39 +35,52 @@ class PlaylistSong {
   }
 
   /**
-   * Remove a song from a playlist.
+   * Remove a song from a playlist (only if added by the same user).
    *
    * @param {number} playlistId - The ID of the playlist.
    * @param {string} trackId - The Spotify track ID.
+   * @param {number} userId - The ID of the user attempting to remove the song.
    * @returns {void}
    * @throws {NotFoundError} - If the song is not found in the playlist.
+   * @throws {ForbiddenError} - If the user is not the one who added the song.
    */
-  static async removeSongFromPlaylist(playlistId, trackId) {
-    const result = await db.query(
-      `DELETE FROM playlist_songs
-       WHERE playlist_id = $1 AND track_id = $2
-       RETURNING id`,
+  static async removeSongFromPlaylist(playlistId, trackId, userId) {
+    const songCheck = await db.query(
+      `SELECT added_by FROM playlist_songs WHERE playlist_id = $1 AND track_id = $2`,
       [playlistId, trackId]
     );
 
-    if (result.rowCount === 0) {
+    const song = songCheck.rows[0];
+
+    if (!song) {
       throw new NotFoundError(`Song with track ID ${trackId} not found in playlist ${playlistId}`);
     }
+
+    // Ensure only the user who added the song can remove it
+    if (song.added_by !== userId) {
+      throw new ForbiddenError("You can only remove songs you added");
+    }
+
+    await db.query(
+      `DELETE FROM playlist_songs WHERE playlist_id = $1 AND track_id = $2`,
+      [playlistId, trackId]
+    );
   }
 
   /**
-   * Get all songs in a specific playlist.
+   * Get all songs in a specific playlist (includes playlist name).
    *
    * @param {number} playlistId - The ID of the playlist.
-   * @returns {Array<Object>} - List of songs in the playlist.
+   * @returns {Array<Object>} - List of songs in the playlist, including playlist name.
    * @throws {NotFoundError} - If no songs are found in the playlist.
    */
   static async getSongsInPlaylist(playlistId) {
     const result = await db.query(
-      `SELECT track_id, added_by, added_at
-       FROM playlist_songs
-       WHERE playlist_id = $1
-       ORDER BY added_at ASC`,
+      `SELECT p.name AS playlist_name, ps.track_id, ps.added_by, ps.added_at
+       FROM playlist_songs ps
+       JOIN playlists p ON ps.playlist_id = p.id
+       WHERE ps.playlist_id = $1
+       ORDER BY ps.added_at ASC`,
       [playlistId]
     );
 
@@ -80,3 +93,4 @@ class PlaylistSong {
 }
 
 module.exports = PlaylistSong;
+
