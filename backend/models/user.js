@@ -117,7 +117,7 @@ class User {
        WHERE id = $1`,
       [userId]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
   /**
@@ -133,7 +133,7 @@ class User {
        WHERE username = $1`,
       [username]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 }
 

@@ -9,8 +9,8 @@ VALUES
 -- Insert playlists
 INSERT INTO playlists (user_id, name, is_public)
 VALUES
-  (1, 'Alice's Favorites', TRUE),
-  (2, 'Bob's Bangers', FALSE);
+  (1, 'Alice''s Favorites', TRUE),
+  (2, 'Bob''s Bangers', FALSE);
 
 -- Insert playlist songs
 INSERT INTO playlist_songs (playlist_id, track_id, added_by)

@@ -4,7 +4,7 @@
 
 const db = require("../db");  // now correct relative path
 const bcrypt = require("bcrypt");
-const { BCRYPT_WORK_FACTOR } = require("../../config"); // adjusted path
+const { BCRYPT_WORK_FACTOR } = require("../config"); // adjusted path
 
 // Store useful IDs for reference in model tests
 let testUserIds = [];
