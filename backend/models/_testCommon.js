@@ -1,22 +1,18 @@
-// tests/_testCommon.js
+// models/_testCommon.js
 
 "use strict";
 
-const db = require("./_testDb");
+const db = require("../db");  // now correct relative path
 const bcrypt = require("bcrypt");
-const { BCRYPT_WORK_FACTOR } = require("../config");
+const { BCRYPT_WORK_FACTOR } = require("../../config"); // adjusted path
 
-// Store useful IDs for reference in tests
+// Store useful IDs for reference in model tests
 let testUserIds = [];
 let testPlaylistIds = [];
 
 async function commonBeforeAll() {
-  // Clean out existing data
+  // Clean out user-dependent tables first
   await db.query("DELETE FROM playlist_songs");
-  await db.query("DELETE FROM shared_playlists");
-  await db.query("DELETE FROM votes");
-  await db.query("DELETE FROM live_session_users");
-  await db.query("DELETE FROM live_sessions");
   await db.query("DELETE FROM playlists");
   await db.query("DELETE FROM users");
 
@@ -34,7 +30,7 @@ async function commonBeforeAll() {
 
   testUserIds.push(result.rows[0].id, result.rows[1].id);
 
-  // Create a test playlist
+  // Create a test playlist for user1
   const playlistRes = await db.query(
     `INSERT INTO playlists (user_id, name, is_public)
      VALUES ($1, 'Chill Vibes', TRUE)
