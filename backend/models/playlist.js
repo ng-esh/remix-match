@@ -119,25 +119,44 @@ class Playlist {
      * @param {boolean} [data.isPublic] - New visibility setting.
      * @returns {Object} - Updated playlist data.
      * @throws {NotFoundError} - If playlist does not exist.
+     * @throws {BadRequestError} - If no fields are provided.
      */
     static async update(playlistId, { name, isPublic }) {
-    const updatedResult = await db.query(
-      `UPDATE playlists
-       SET name = COALESCE($1, name),
-           is_public = COALESCE($2, is_public)
-       WHERE id = $3
-       RETURNING id, user_id, name, is_public, created_at`,
-      [name, isPublic, playlistId]
-    );
+      const fields = [];
+      const values = [];
+      let idx = 1;
 
-    const updatedPlaylist = updatedResult.rows[0];
+      if (name !== undefined) {
+        fields.push(`name = $${idx++}`);
+        values.push(name);
+      }
 
-    if (!updatedPlaylist) {
+      if (isPublic !== undefined) {
+        fields.push(`is_public = $${idx++}`);
+        values.push(isPublic);
+      }
+
+      if (fields.length === 0) {
+        throw new BadRequestError("No valid fields to update");
+      }
+
+      const query = `
+        UPDATE playlists
+        SET ${fields.join(", ")}
+        WHERE id = $${idx}
+        RETURNING id, user_id, name, is_public, created_at
+      `;
+      values.push(playlistId);
+
+      const result = await db.query(query, values);
+      const updated = result.rows[0];
+
+      if (!updated) {
         throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
-    }
+      }
 
-    return updatedPlaylist;
-}
+      return updated;
+    }
 
   /**
      * Delete a playlist.
