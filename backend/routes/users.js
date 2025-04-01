@@ -69,39 +69,83 @@ router.post("/auth/login", async function (req, res, next) {
  * Response:
  * { id, email, username, created_at }
  */
-router.get("/users/:userId", ensureLoggedIn, async function (req, res, next) {
-  try {
-    const user = await User.getById(req.params.userId);
-    if (!user) {
-      throw new BadRequestError("User not found");
+router.get("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+    try {
+      const user = await User.getById(req.params.userId);
+      if (!user) {
+        throw new BadRequestError("User not found");
+      }
+      return res.json({ user });
+    } catch (err) {
+      return next(err);
     }
-    return res.json(user);
-  } catch (err) {
-    return next(err);
-  }
-});
+  });
+
+/** GET /users/search?query=... => [{ id, username }]
+ *
+ * Fuzzy search for users by username (case-insensitive).
+ * Restricted to logged-in users.
+ */
+router.get("/search", ensureLoggedIn, async function (req, res, next) {
+    try {
+      const query = req.query.query;
+  
+      if (!query || query.trim() === "") {
+        return res.status(400).json({ error: "Search query is required." });
+      }
+  
+      const usersRes = await db.query(
+        `SELECT id, username
+         FROM users
+         WHERE username ILIKE $1`,
+        [`%${query}%`]
+      );
+  
+      return res.json(usersRes.rows);
+    } catch (err) {
+      return next(err);
+    }
+  }); 
 
 /**
- * GET /users/username/:username
- * 
- * Search user by public username.
- * 
- * Authorization:
- * - Optional; can be public if needed.
- * 
- * Response:
- * { id, email, username, created_at }
+ * PATCH /users/:userId
+ *
+ * Update user profile.
+ * Request body: { email, password }
+ * Authorization: must be the correct user.
+ * Response: { user }
  */
-router.get("/users/username/:username", async function (req, res, next) {
-  try {
-    const user = await User.getByUsername(req.params.username);
-    if (!user) {
-      throw new BadRequestError("Username not found");
+router.patch("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+    try {
+      const data = req.body;
+      if (!data.email && !data.password) {
+        throw new BadRequestError("At least one field must be provided to update");
+      }
+  
+      const updated = await User.update(req.params.userId, data);
+      return res.json({ user: updated });
+    } catch (err) {
+      return next(err);
     }
-    return res.json(user);
-  } catch (err) {
-    return next(err);
-  }
-});
+  });
+  
+/**
+* DELETE /users/:userId
+*
+* Delete a user account.
+* Authorization: must be the correct user.
+* Response: { deleted: userId }
+*/
+router.delete("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+    try {
+      await User.delete(req.params.userId);
+      return res.json({ deleted: +req.params.userId });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+
+
 
 module.exports = router;
