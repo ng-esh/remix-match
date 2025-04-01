@@ -8,11 +8,15 @@ const { SECRET_KEY } = require("../config");
 const { UnauthorizedError, ForbiddenError, NotFoundError } = require("../expressError");
 
 /**
- * Middleware: Authenticate user.
- * 
- * - Extracts JWT token from the `Authorization` header.
- * - If valid, stores the decoded token payload in `res.locals.user`.
- * - If missing or invalid, no error is thrown (allows public access).
+ * Middleware: Authenticate user using JWT.
+ *
+ * - Looks for a token in the `Authorization` header.
+ * - If a valid token exists, it verifies it using the app's SECRET_KEY.
+ * - If verification is successful, the decoded user payload is stored on `res.locals.user`.
+ * - Does not throw an error if the token is missing or invalid—this allows for public routes.
+ *
+ * This middleware should run on every request so that downstream middleware and routes
+ * can access `res.locals.user` to know the currently logged-in user.
  */
 function authenticateJWT(req, res, next) {
   try {
@@ -28,9 +32,12 @@ function authenticateJWT(req, res, next) {
 }
 
 /**
- * Middleware: Ensure user is logged in.
+ * Middleware: Ensure a user is logged in.
  *
- * Throws `UnauthorizedError` if no valid token is provided.
+ * - Requires that `res.locals.user` is set (via `authenticateJWT`).
+ * - If not, responds with an `UnauthorizedError`.
+ *
+ * This middleware should be used to protect routes that require any authenticated user.
  */
 function ensureLoggedIn(req, res, next) {
   try {
@@ -42,16 +49,18 @@ function ensureLoggedIn(req, res, next) {
 }
 
 /**
- * Middleware: Ensure user matches the route parameter.
+ * Middleware: Ensure the logged-in user matches the username in the route.
  *
- * Only allows access if the logged-in user matches `req.params.username`.
- * Throws `UnauthorizedError` if not.
+ * - Compares the username in the token (`res.locals.user.username`) with `req.params.username`.
+ * - If they don't match, responds with an `UnauthorizedError`.
+ *
+ * Use this to restrict user-specific operations like editing profiles.
  */
 function ensureCorrectUser(req, res, next) {
   try {
     const user = res.locals.user;
-    if (!user || user.username !== req.params.username) {
-      throw new UnauthorizedError("Access denied");
+    if (!user || user.id !== parseInt(req.params.userId)) {
+      return next(new ForbiddenError("You do not have permission to access this resource"));
     }
     return next();
   } catch (err) {
@@ -59,11 +68,16 @@ function ensureCorrectUser(req, res, next) {
   }
 }
 
+
 /**
- * Middleware: Ensure the logged-in user owns the playlist.
+ * Middleware: Ensure the logged-in user is the owner of a playlist.
  *
- * - Fetches the playlist owner from the database.
- * - Throws `ForbiddenError` if the user does not own the playlist.
+ * - Extracts the playlist ID from `req.params.id`.
+ * - Queries the database for the playlist's `user_id`.
+ * - If the playlist is not found, throws a `NotFoundError`.
+ * - If the logged-in user (via `res.locals.user.id`) does not match the `user_id`, throws `ForbiddenError`.
+ *
+ * This protects endpoints like updating or deleting a playlist.
  */
 async function ensurePlaylistOwner(req, res, next) {
   try {
@@ -88,6 +102,10 @@ async function ensurePlaylistOwner(req, res, next) {
     return next(err);
   }
 }
+
+afterAll(async () => {
+  await db.end();
+});
 
 module.exports = {
   authenticateJWT,
