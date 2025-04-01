@@ -1,13 +1,21 @@
 // app.js
 const express = require('express');
 const cors = require("cors");
+
+const { authenticateJWT } = require("./middleware/auth");
+const userRoutes = require("./routes/users");
+
 const morgan = require('morgan');
 const app = express();
 
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cors());
+app.use(authenticateJWT);
 
 // Add routes here later
+app.use("/", userRoutes);
+
 app.get('/', (req, res) => {
   return res.json({ message: 'Welcome to ReMixMatch API 🎵' });
 });
