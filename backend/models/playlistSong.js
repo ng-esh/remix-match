@@ -41,8 +41,6 @@ class PlaylistSong {
     }
   }
 
-
-
   /**
    * Remove a song from a playlist.
    *
@@ -71,7 +69,6 @@ class PlaylistSong {
 
     return result.rows[0];
   }
-
 
   /**
    * Get all songs in a playlist, ordered by position.
@@ -105,6 +102,10 @@ class PlaylistSong {
    * @throws {BadRequestError} - If any track is not found in playlist.
    */
   static async reorderSongs(playlistId, orderedTrackIds) {
+    if (!playlistId || !Array.isArray(orderedTrackIds) || orderedTrackIds.length === 0) {
+      throw new BadRequestError("Playlist ID and a non-empty array of track IDs are required");
+    }
+    
     const placeholders = orderedTrackIds.map((_, idx) => `$${idx + 2}`).join(", ");
     const checkRes = await db.query(
       `SELECT track_id FROM playlist_songs WHERE playlist_id = $1 AND track_id IN (${placeholders})`,

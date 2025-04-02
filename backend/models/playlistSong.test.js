@@ -18,7 +18,7 @@ afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
 describe("PlaylistSong.addSongToPlaylist", function () {
-  test("adds a song to a playlist with correct order_index", async function () {
+  test("adds a song to a playlist with correct position", async function () {
     const result = await PlaylistSong.addSongToPlaylist({
       playlistId: testPlaylistIds[0],
       trackId: "spotify:track:12345",
@@ -28,7 +28,7 @@ describe("PlaylistSong.addSongToPlaylist", function () {
     expect(result).toEqual(expect.objectContaining({
       playlist_id: testPlaylistIds[0],
       track_id: "spotify:track:12345",
-      order_index: 0
+      position: expect.any(Number)
     }));
   });
 
@@ -101,7 +101,7 @@ describe("PlaylistSong.getSongsInPlaylist", function () {
     ]);
   });
 
-  test("returns empty array if no songs in playlist", async function () {
+  test("throws NotFoundError if no songs in playlist", async function () {
     const newPlaylistRes = await db.query(
       `INSERT INTO playlists (user_id, name, is_public)
        VALUES ($1, 'Empty Playlist', TRUE)
@@ -109,12 +109,13 @@ describe("PlaylistSong.getSongsInPlaylist", function () {
       [testUserIds[0]]
     );
 
-    const songs = await PlaylistSong.getSongsInPlaylist(newPlaylistRes.rows[0].id);
-    expect(songs).toEqual([]);
+    await expect(
+      PlaylistSong.getSongsInPlaylist(newPlaylistRes.rows[0].id)
+    ).rejects.toThrow(NotFoundError);
   });
 });
 
-describe("PlaylistSong.reorderSongsInPlaylist", function () {
+describe("PlaylistSong.reorderSongs", function () {
   test("reorders songs within a playlist", async function () {
     await PlaylistSong.addSongToPlaylist({
       playlistId: testPlaylistIds[0],
@@ -128,7 +129,7 @@ describe("PlaylistSong.reorderSongsInPlaylist", function () {
       userId: testUserIds[0]
     });
 
-    await PlaylistSong.reorderSongsInPlaylist(testPlaylistIds[0], [
+    await PlaylistSong.reorderSongs(testPlaylistIds[0], [
       "spotify:track:two",
       "spotify:track:one"
     ]);
@@ -142,11 +143,11 @@ describe("PlaylistSong.reorderSongsInPlaylist", function () {
 
   test("throws BadRequestError if playlistId or order array is missing", async function () {
     await expect(
-      PlaylistSong.reorderSongsInPlaylist(null, [])
+      PlaylistSong.reorderSongs(null, [])
     ).rejects.toThrow(BadRequestError);
 
     await expect(
-      PlaylistSong.reorderSongsInPlaylist(testPlaylistIds[0], null)
+      PlaylistSong.reorderSongs(testPlaylistIds[0], null)
     ).rejects.toThrow(BadRequestError);
   });
 });
