@@ -121,42 +121,45 @@ class Playlist {
      * @throws {NotFoundError} - If playlist does not exist.
      * @throws {BadRequestError} - If no fields are provided.
      */
-    static async update(playlistId, { name, isPublic }) {
-      const fields = [];
-      const values = [];
-      let idx = 1;
-
-      if (name !== undefined) {
-        fields.push(`name = $${idx++}`);
-        values.push(name);
-      }
-
-      if (isPublic !== undefined) {
-        fields.push(`is_public = $${idx++}`);
-        values.push(isPublic);
-      }
-
-      if (fields.length === 0) {
-        throw new BadRequestError("No valid fields to update");
-      }
-
-      const query = `
-        UPDATE playlists
-        SET ${fields.join(", ")}
-        WHERE id = $${idx}
-        RETURNING id, user_id, name, is_public, created_at
-      `;
-      values.push(playlistId);
-
-      const result = await db.query(query, values);
-      const updated = result.rows[0];
-
-      if (!updated) {
-        throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
-      }
-
-      return updated;
+  static async update(playlistId, { name, isPublic }) {
+    const fields = [];
+    const values = [];
+    let idx = 1;
+  
+    if (name !== undefined) {
+      fields.push(`name = $${idx++}`);
+      values.push(name);
     }
+  
+    if (isPublic !== undefined) {
+      fields.push(`is_public = $${idx++}`);
+      values.push(isPublic);
+    }
+  
+    if (fields.length === 0) {
+      throw new BadRequestError("No valid fields to update");
+    }
+  
+    // Playlist ID should come after the fields — its placeholder needs the correct number
+    const query = `
+      UPDATE playlists
+      SET ${fields.join(", ")}
+      WHERE id = $${idx}
+      RETURNING id, user_id, name, is_public, created_at
+    `;
+    values.push(playlistId);
+  
+    const result = await db.query(query, values);
+    const updated = result.rows[0];
+  
+    if (!updated) {
+      throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
+    }
+  
+    return updated;
+  }
+  
+    
 
   /**
      * Delete a playlist.

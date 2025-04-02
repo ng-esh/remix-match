@@ -101,6 +101,18 @@ describe("Playlist.update", function () {
     );
   });
 
+  test("does not update visibility if not passed", async function () {
+    const updated = await Playlist.update(testPlaylistIds[0], {
+      name: "Name Only"  // no isPublic
+    });
+  
+    expect(updated).toEqual(expect.objectContaining({
+      id: testPlaylistIds[0],
+      name: "Name Only",
+      is_public: true // remains unchanged
+    }));
+  });
+  
   test("throws NotFoundError if playlist not found", async function () {
     await expect(
       Playlist.update(9999, { name: "Nope" })
