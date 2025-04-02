@@ -21,7 +21,7 @@ CREATE TABLE users (
 -- Playlists
 CREATE TABLE playlists (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   is_public BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -30,21 +30,33 @@ CREATE TABLE playlists (
 -- Playlist Songs
 CREATE TABLE playlist_songs (
   id SERIAL PRIMARY KEY,
-  playlist_id INTEGER REFERENCES playlists ON DELETE CASCADE,
+  playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
   track_id TEXT NOT NULL,
-  added_by INTEGER REFERENCES users ON DELETE SET NULL,
+  added_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
   added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  position INTEGER,
   UNIQUE (playlist_id, track_id)
 );
 
 -- Shared Playlists
 CREATE TABLE shared_playlists (
   id SERIAL PRIMARY KEY,
-  playlist_id INTEGER REFERENCES playlists ON DELETE CASCADE,
-  from_user_id INTEGER REFERENCES users ON DELETE CASCADE,
-  to_user_id INTEGER REFERENCES users ON DELETE CASCADE,
+  playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
+  from_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  to_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   shared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (playlist_id, to_user_id)
+);
+
+-- Shares Table (for song shares)
+CREATE TABLE shares (
+  id SERIAL PRIMARY KEY,
+  shared_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  shared_with INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
+  track_id TEXT NOT NULL,
+  message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Votes
@@ -61,7 +73,7 @@ CREATE TABLE live_sessions (
   id SERIAL PRIMARY KEY,
   host_id INTEGER REFERENCES users ON DELETE CASCADE,
   session_name TEXT NOT NULL,
-  track_id TEXT NOT NULL,
+  playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

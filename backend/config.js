@@ -14,7 +14,7 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 /** getDatabaseUri(): returns DB connection string depending on NODE_ENV */
 function getDatabaseUri() {
   return process.env.NODE_ENV === "test"
-    ? "postgresql:///remixmatch_test"
+    ? "postgresql:///remixmatch-test"
     : process.env.DATABASE_URL || "postgresql:///remixmatch";
 }
 

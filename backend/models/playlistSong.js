@@ -18,29 +18,30 @@ class PlaylistSong {
    * @param {number} data.playlistId - ID of the playlist.
    * @param {string} data.trackId - Spotify track ID.
    * @param {number} data.userId - ID of the user adding the song.
+   * @param {number} [data.position] - Optional position to insert the song at.
    * @returns {Object} - The added song record.
+   * @throws {BadRequestError} - If song already exists in playlist.
    */
-  static async addSongToPlaylist({ playlistId, trackId, userId }) {
-    if (!playlistId || !trackId || !userId) {
-      throw new BadRequestError("Playlist ID, track ID, and user ID are required");
-    }
 
+  static async addSongToPlaylist({ playlistId, trackId, userId, position }) {
     try {
       const result = await db.query(
-        `INSERT INTO playlist_songs (playlist_id, track_id, added_by)
-         VALUES ($1, $2, $3)
-         RETURNING id, playlist_id, track_id, added_by, added_at`,
-        [playlistId, trackId, userId]
+        `INSERT INTO playlist_songs (playlist_id, track_id, added_by, position)
+         VALUES ($1, $2, $3, COALESCE($4, (SELECT COALESCE(MAX(position), 0) + 1 FROM playlist_songs WHERE playlist_id = $1)))
+         RETURNING id, playlist_id, track_id, added_by, position, added_at`,
+        [playlistId, trackId, userId, position]
       );
 
       return result.rows[0];
     } catch (err) {
       if (err.code === "23505") {
-        throw new BadRequestError("Song already in playlist");
+        throw new BadRequestError("Song already exists in this playlist");
       }
       throw err;
     }
   }
+
+
 
   /**
    * Remove a song from a playlist.
@@ -57,37 +58,88 @@ class PlaylistSong {
       [playlistId, trackId]
     );
 
-    const song = songCheck.rows[0];
-    if (!song) throw new NotFoundError("Song not found in playlist");
+    if (songCheck.rowCount === 0) {
+      throw new NotFoundError(`Song ${trackId} not found in playlist ${playlistId}`);
+    }
 
-    await db.query(
-      `DELETE FROM playlist_songs WHERE playlist_id = $1 AND track_id = $2`,
+    const result = await db.query(
+      `DELETE FROM playlist_songs
+       WHERE playlist_id = $1 AND track_id = $2
+       RETURNING playlist_id, track_id`,
       [playlistId, trackId]
     );
 
-    return {
-      playlist_id: playlistId,
-      track_id: trackId
-    };
+    return result.rows[0];
   }
 
+
   /**
-   * Get all songs in a playlist.
+   * Get all songs in a playlist, ordered by position.
    *
    * @param {number} playlistId - Playlist ID.
-   * @returns {Array<Object>} - List of song entries.
+   * @returns {Array} - List of song objects.
+   * @throws {NotFoundError} - If no songs found.
    */
   static async getSongsInPlaylist(playlistId) {
     const result = await db.query(
-      `SELECT ps.track_id, ps.added_by, ps.added_at, p.name AS playlist_name
-       FROM playlist_songs ps
-         JOIN playlists p ON ps.playlist_id = p.id
-       WHERE ps.playlist_id = $1`,
+      `SELECT track_id, added_by, added_at, position
+       FROM playlist_songs
+       WHERE playlist_id = $1
+       ORDER BY position`,
       [playlistId]
     );
 
+    if (result.rows.length === 0) {
+      throw new NotFoundError(`No songs found in playlist with ID ${playlistId}`);
+    }
+
     return result.rows;
   }
+
+  /**
+   * Reorder songs in a playlist by providing a new array of track IDs.
+   *
+   * @param {number} playlistId - Playlist ID.
+   * @param {string[]} orderedTrackIds - Array of Spotify track IDs in the new order.
+   * @returns {Array} - Updated list of songs with new positions.
+   * @throws {BadRequestError} - If any track is not found in playlist.
+   */
+  static async reorderSongs(playlistId, orderedTrackIds) {
+    const placeholders = orderedTrackIds.map((_, idx) => `$${idx + 2}`).join(", ");
+    const checkRes = await db.query(
+      `SELECT track_id FROM playlist_songs WHERE playlist_id = $1 AND track_id IN (${placeholders})`,
+      [playlistId, ...orderedTrackIds]
+    );
+
+    const foundTracks = new Set(checkRes.rows.map(r => r.track_id));
+    for (let trackId of orderedTrackIds) {
+      if (!foundTracks.has(trackId)) {
+        throw new BadRequestError(`Track ID ${trackId} is not in playlist ${playlistId}`);
+      }
+    }
+
+    for (let i = 0; i < orderedTrackIds.length; i++) {
+      await db.query(
+        `UPDATE playlist_songs
+         SET position = $1
+         WHERE playlist_id = $2 AND track_id = $3`,
+        [i + 1, playlistId, orderedTrackIds[i]]
+      );
+    }
+
+    const updated = await db.query(
+      `SELECT track_id, added_by, added_at, position
+       FROM playlist_songs
+       WHERE playlist_id = $1
+       ORDER BY position`,
+      [playlistId]
+    );
+
+    return updated.rows;
+  }
 }
+
+
+
 
 module.exports = PlaylistSong;
