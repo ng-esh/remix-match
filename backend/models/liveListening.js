@@ -6,112 +6,70 @@
 // - Error handling is correct (NotFoundError, BadRequestError, ForbiddenError).
 
 // models/liveListening.js
+"use strict";
+
+"use strict";
 
 const db = require("../db");
-const { NotFoundError, BadRequestError, ForbiddenError } = require("../expressError");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../expressError");
 
+/** LiveListening manages live listening sessions for playlists, tracks, or albums */
 class LiveListening {
   /**
    * Create a new live listening session.
    *
-   * @param {number} hostId - The ID of the user hosting the session.
-   * @param {string} sessionName - The name of the session.
-   * @param {string} trackId - The Spotify track ID being played.
-   * @returns {Object} - The newly created session.
-   * @throws {BadRequestError} - If required fields are missing.
+   * @param {Object} data - Session data.
+   * @param {number} data.hostId - User ID of the session host.
+   * @param {string} data.sessionName - Name of the session.
+   * @param {string} data.sourceType - Type of source (playlist, track, or album).
+   * @param {string} data.sourceId - Spotify ID for the source.
+   * @returns {Object} Newly created session data.
+   * @throws {BadRequestError} If required fields are missing.
    */
-  static async createSession({ hostId, sessionName, trackId }) {
-    if (!hostId || !sessionName || !trackId) {
-      throw new BadRequestError("Host ID, session name, and track ID are required");
+  static async createSession({ hostId, sessionName, sourceType, sourceId }) {
+    if (!hostId || !sessionName || !sourceType || !sourceId) {
+      throw new BadRequestError("Missing required fields to create session");
     }
 
     const result = await db.query(
-      `INSERT INTO live_sessions (host_id, session_name, track_id, is_active)
-       VALUES ($1, $2, $3, TRUE)
-       RETURNING id, host_id, session_name, track_id, is_active, created_at`,
-      [hostId, sessionName, trackId]
+      `INSERT INTO live_sessions (host_id, session_name, source_type, source_id, is_active)
+       VALUES ($1, $2, $3, $4, TRUE)
+       RETURNING id, host_id, session_name, source_type, source_id, is_active, created_at`,
+      [hostId, sessionName, sourceType, sourceId]
+    );
+
+    await db.query(
+      `INSERT INTO live_session_users (session_id, user_id)
+       VALUES ($1, $2)`,
+      [result.rows[0].id, hostId]
     );
 
     return result.rows[0];
   }
 
-  /**
-   * Get all active sessions that a user is a part of.
-   *
-   * @param {number} userId - The ID of the user.
-   * @returns {Array<Object>} - List of active sessions the user is in.
-   */
-  static async getUserActiveSessions(userId) {
-    const result = await db.query(
-      `SELECT s.id, s.host_id, s.session_name, s.track_id, s.created_at
-       FROM live_sessions s
-       JOIN live_session_users lu ON s.id = lu.session_id
-       WHERE lu.user_id = $1 AND s.is_active = TRUE
-       ORDER BY s.created_at DESC`,
-      [userId]
-    );
-
-    return result.rows;
-  }
-
-  /**
-   * Get all sessions (both active & inactive) for a specific host.
-   *
-   * @param {number} hostId - The ID of the host.
-   * @returns {Array<Object>} - List of all sessions hosted by the user.
-   */
-  static async getHostSessions(hostId) {
-    const result = await db.query(
-      `SELECT id, session_name, track_id, is_active, created_at
-       FROM live_sessions
-       WHERE host_id = $1
-       ORDER BY created_at DESC`,
-      [hostId]
-    );
-
-    return result.rows;
-  }
-
-  /**
-   * Join an existing live session (only if active).
-   *
-   * @param {number} sessionId - The ID of the live session.
-   * @param {number} userId - The ID of the user joining the session.
-   * @returns {Object} - The joined session details.
-   * @throws {NotFoundError} - If session does not exist.
-   * @throws {ForbiddenError} - If session is no longer active.
-   */
+  /** Join an existing session if it's active */
   static async joinSession(sessionId, userId) {
-    const sessionCheck = await db.query(
+    const sessionRes = await db.query(
       `SELECT is_active FROM live_sessions WHERE id = $1`,
       [sessionId]
     );
 
-    if (sessionCheck.rows.length === 0) {
-      throw new NotFoundError(`Live session with ID ${sessionId} not found`);
-    }
-
-    if (!sessionCheck.rows[0].is_active) {
-      throw new ForbiddenError("This session is no longer active");
+    const session = sessionRes.rows[0];
+    if (!session || !session.is_active) {
+      throw new ForbiddenError("Cannot join an inactive or non-existent session");
     }
 
     await db.query(
       `INSERT INTO live_session_users (session_id, user_id)
-       VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+       VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
       [sessionId, userId]
     );
 
-    return { message: "Joined session successfully" };
+    return { sessionId, userId };
   }
 
-  /**
-   * Leave a live session.
-   *
-   * @param {number} sessionId - The ID of the live session.
-   * @param {number} userId - The ID of the user leaving the session.
-   * @returns {void}
-   * @throws {NotFoundError} - If session does not exist or user is not in session.
-   */
+  /** Remove a user from a session; end session if no users remain */
   static async leaveSession(sessionId, userId) {
     const result = await db.query(
       `DELETE FROM live_session_users
@@ -124,77 +82,63 @@ class LiveListening {
       throw new NotFoundError(`User ${userId} is not in session ${sessionId}`);
     }
 
-    // Check how many users are still in the session
-    const remainingUsers = await db.query(
-      `SELECT COUNT(*) AS count FROM live_session_users WHERE session_id = $1`,
+    const usersLeft = await db.query(
+      `SELECT COUNT(*) FROM live_session_users WHERE session_id = $1`,
       [sessionId]
     );
 
-    if (parseInt(remainingUsers.rows[0].count) === 0) {
+    if (+usersLeft.rows[0].count === 0) {
       await db.query(
-        `UPDATE live_sessions
-         SET is_active = FALSE
-         WHERE id = $1`,
+        `UPDATE live_sessions SET is_active = FALSE WHERE id = $1`,
         [sessionId]
       );
     }
+
+    return "User removed from session.";
   }
 
-  /**
-   * Get all active live listening sessions (includes participants).
-   *
-   * @returns {Array<Object>} - List of active sessions with participants.
-   */
-  static async getActiveSessions() {
+  /** Get all active sessions the user is currently part of */
+  static async getUserActiveSessions(userId) {
     const result = await db.query(
-      `SELECT s.id, s.host_id, s.session_name, s.track_id, s.created_at,
-              json_agg(u.username) AS participants
+      `SELECT s.id, s.host_id, s.session_name, s.source_type, s.source_id, s.created_at
        FROM live_sessions s
-       LEFT JOIN live_session_users lu ON s.id = lu.session_id
-       LEFT JOIN users u ON lu.user_id = u.id
-       WHERE s.is_active = TRUE
-       GROUP BY s.id
-       ORDER BY s.created_at DESC`
+       JOIN live_session_users u ON s.id = u.session_id
+       WHERE u.user_id = $1 AND s.is_active = TRUE`,
+      [userId]
     );
 
     return result.rows;
   }
 
-  /**
-   * End a live listening session (only the host can end it).
-   *
-   * @param {number} sessionId - The ID of the live session.
-   * @param {number} hostId - The ID of the host ending the session.
-   * @returns {void}
-   * @throws {NotFoundError} - If session does not exist.
-   * @throws {ForbiddenError} - If user is not the host.
-   */
+  /** Get all sessions hosted by a specific user */
+  static async getHostSessions(hostId) {
+    const result = await db.query(
+      `SELECT id, host_id, session_name, source_type, source_id, is_active, created_at
+       FROM live_sessions
+       WHERE host_id = $1`,
+      [hostId]
+    );
+
+    return result.rows;
+  }
+
+  /** End a session if the user is the host */
   static async endSession(sessionId, hostId) {
     const sessionCheck = await db.query(
-      `SELECT host_id, is_active FROM live_sessions WHERE id = $1`,
+      `SELECT host_id FROM live_sessions WHERE id = $1`,
       [sessionId]
     );
 
-    if (sessionCheck.rows.length === 0) {
-      throw new NotFoundError(`Live session with ID ${sessionId} not found`);
-    }
-
-    const session = sessionCheck.rows[0];
-
-    if (!session.is_active) {
-      throw new ForbiddenError("This session has already ended");
-    }
-
-    if (session.host_id !== hostId) {
-      throw new ForbiddenError("Only the host can end this session");
+    if (!sessionCheck.rows[0] || sessionCheck.rows[0].host_id !== hostId) {
+      throw new ForbiddenError("Only the host can end the session");
     }
 
     await db.query(
-      `UPDATE live_sessions
-       SET is_active = FALSE
-       WHERE id = $1`,
+      `UPDATE live_sessions SET is_active = FALSE WHERE id = $1`,
       [sessionId]
     );
+
+    return "Session ended successfully.";
   }
 }
 

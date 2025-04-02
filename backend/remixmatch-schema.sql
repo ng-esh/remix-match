@@ -73,7 +73,8 @@ CREATE TABLE live_sessions (
   id SERIAL PRIMARY KEY,
   host_id INTEGER REFERENCES users ON DELETE CASCADE,
   session_name TEXT NOT NULL,
-  playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
+  source_type TEXT NOT NULL CHECK (source_type IN ('playlist', 'track', 'album')),
+  source_id TEXT NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

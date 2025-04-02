@@ -35,9 +35,19 @@ VALUES
   (2, 1, -1);
 
 -- Insert live sessions
-INSERT INTO live_sessions (host_id, session_name, playlist_id)
+INSERT INTO live_sessions (host_id, session_name, source_type, source_id)
 VALUES
-  (1, 'Morning Jam', 1);
+  (1, 'Morning Jam', 'playlist', '1');
+
+-- Bonus example: individual song session
+INSERT INTO live_sessions (host_id, session_name, source_type, source_id)
+VALUES
+  (2, 'Late Night Vibes', 'track', 'spotify:track:456xyz');
+
+-- Bonus example: album session
+INSERT INTO live_sessions (host_id, session_name, source_type, source_id)
+VALUES
+  (1, 'Throwback Album', 'album', 'spotify:album:123abc');
 
 -- Insert users in live sessions
 INSERT INTO live_session_users (session_id, user_id)
