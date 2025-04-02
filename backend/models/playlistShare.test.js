@@ -1,7 +1,7 @@
-// models/share.test.js
+// models/playlistShare.test.js
 
 const db = require("../db");
-const Share = require("./share");
+const Share = require("./playlistShare");
 const {
   commonBeforeAll,
   commonBeforeEach,

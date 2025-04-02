@@ -1,4 +1,4 @@
-// What share.js Will Do
+// What playlistShare.js Will Do
 // - Allow a user to share a playlist with another user 
 // - Retrieve all users a playlist has been shared with 
 // - Remove a shared playlist from a user's shared list 
