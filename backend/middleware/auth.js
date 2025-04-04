@@ -103,6 +103,48 @@ async function ensurePlaylistOwner(req, res, next) {
   }
 }
 
+/**
+ * Middleware to ensure a user can view a playlist.
+ *
+ * Allows access if:
+ *  - The playlist is marked as public, or
+ *  - The logged-in user is the owner of the playlist.
+ *
+ * Requires user to be logged in (should be paired with ensureLoggedIn).
+ *
+ * Throws:
+ *  - NotFoundError if the playlist does not exist.
+ *  - ForbiddenError if the playlist is private and user is not the owner.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ */
+async function ensurePlaylistVisible(req, res, next) {
+  try {
+    const userId = res.locals.user?.id;
+    const playlistId = req.params.playlistId;
+
+    const playlistRes = await db.query(
+      `SELECT user_id, is_public FROM playlists WHERE id = $1`,
+      [playlistId]
+    );
+
+    const playlist = playlistRes.rows[0];
+    if (!playlist) throw new NotFoundError("Playlist not found");
+
+    if (playlist.is_public || playlist.user_id === userId) {
+      return next();
+    }
+
+    throw new ForbiddenError("You do not have access to this playlist");
+  } catch (err) {
+    return next(err);
+  }
+}
+
+
+
 afterAll(async () => {
   await db.end();
 });
@@ -112,4 +154,5 @@ module.exports = {
   ensureLoggedIn,
   ensureCorrectUser,
   ensurePlaylistOwner,
+  ensurePlaylistVisible,
 };
