@@ -12,7 +12,7 @@
 const express = require("express");
 const Playlist = require("../models/playlist");
 const { ensureLoggedIn, ensurePlaylistOwner, authenticateJWT } = require("../middleware/auth");
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, ForbiddenError } = require("../expressError");
 
 const router = express.Router();
 
@@ -76,7 +76,7 @@ router.get("/:id", authenticateJWT, async function (req, res, next) {
 
     if (!playlist.is_public) {
       if (!user || playlist.user_id !== user.id) {
-        throw new BadRequestError("Private playlist: access denied.");
+        throw new ForbiddenError("Private playlist: access denied.");
       }
     }
 
