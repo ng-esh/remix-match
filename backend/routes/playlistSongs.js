@@ -5,7 +5,7 @@
 const express = require("express");
 const router = new express.Router();
 const PlaylistSong = require("../models/playlistSong");
-const { ensureLoggedIn, ensurePlaylistOwner } = require("../middleware/auth");
+const { ensureLoggedIn, ensurePlaylistOwner, ensurePlaylistVisible } = require("../middleware/auth");
 
 /**
  * POST /:playlistId/songs
