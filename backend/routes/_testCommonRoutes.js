@@ -14,6 +14,8 @@ let testUserId2;
 let testPlaylistId;
 let testPlaylistId2;
 let testTrackId = "spotify:track:test123";
+let testTrackId2 = "spotify:track:test456";
+let testSessionId;
 
 async function commonBeforeAll() {
   // Clear tables
@@ -54,10 +56,24 @@ async function commonBeforeAll() {
   testPlaylistId = resPlaylists.rows[0].id;
   testPlaylistId2 = resPlaylists.rows[1].id;
 
-  // Add a song
+  // Add songs
   await db.query(`
     INSERT INTO playlist_songs (playlist_id, track_id, added_by)
-    VALUES ($1, $2, $3)`, [testPlaylistId, testTrackId, testUserId]);
+    VALUES 
+      ($1, $2, $3),
+      ($1, $4, $3)`, [testPlaylistId, testTrackId, testUserId, testTrackId2]);
+
+  // Create a live session
+  const resSession = await db.query(`
+    INSERT INTO live_sessions (host_id, session_name, source_type, source_id, is_active)
+    VALUES ($1, 'Test Session', 'playlist', $2, TRUE)
+    RETURNING id`, [testUserId, testPlaylistId]);
+
+  testSessionId = resSession.rows[0].id;
+
+  await db.query(`
+    INSERT INTO live_session_users (session_id, user_id)
+    VALUES ($1, $2)`, [testSessionId, testUserId]);
 }
 
 async function commonBeforeEach() {
@@ -83,6 +99,8 @@ module.exports = {
   testPlaylistId,
   testPlaylistId2,
   testTrackId,
+  testTrackId2,
+  testSessionId,
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,

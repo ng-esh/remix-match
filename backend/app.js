@@ -7,6 +7,9 @@ const userRoutes = require("./routes/users");
 const playlistRoutes = require ("./routes/playlists");
 const playlistSongRoutes = require ("./routes/playlistSongs");
 const playlistShareRoutes = require ("./routes/playlistShares");
+const songShareRoutes = require ("./routes/songShares");
+const voteRoutes = require ("./routes/votes");
+const liveListeningRoutes = require ("./routes/liveListenings");
 
 const morgan = require('morgan');
 const app = express();
@@ -21,6 +24,9 @@ app.use("/", userRoutes);
 app.use("/", playlistRoutes);
 app.use("/", playlistSongRoutes);
 app.use("/", playlistShareRoutes);
+app.use("/", songShareRoutes);
+app.use("/", voteRoutes);
+app.use("/", liveListeningRoutes);
 
 app.get('/', (req, res) => {
   return res.json({ message: 'Welcome to ReMixMatch API 🎵' });
