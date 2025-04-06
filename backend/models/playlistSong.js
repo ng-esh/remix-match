@@ -14,29 +14,47 @@ class PlaylistSong {
   /**
    * Add a song to a playlist.
    *
-   * @param {Object} data - Data for adding a song.
+   * @param {Object} data - Song data.
    * @param {number} data.playlistId - ID of the playlist.
    * @param {string} data.trackId - Spotify track ID.
    * @param {number} data.userId - ID of the user adding the song.
    * @param {number} [data.position] - Optional position to insert the song at.
-   * @returns {Object} - The added song record.
+   * @returns {Object} - Newly added song data.
    * @throws {BadRequestError} - If song already exists in playlist.
    */
-
   static async addSongToPlaylist({ playlistId, trackId, userId, position }) {
     try {
+      // Check if song already exists in playlist
+      const duplicateCheck = await db.query(
+        `SELECT 1 FROM playlist_songs WHERE playlist_id = $1 AND track_id = $2`,
+        [playlistId, trackId]
+      );
+      if (duplicateCheck.rowCount > 0) {
+        throw new BadRequestError("Song already exists in this playlist");
+      }
+
+      // If position is specified, shift down songs at or after that position
+      if (position !== undefined) {
+        await db.query(
+          `UPDATE playlist_songs
+           SET position = position + 1
+           WHERE playlist_id = $1 AND position >= $2`,
+          [playlistId, position]
+        );
+      }
+
+      // Insert song with specified or next position
       const result = await db.query(
         `INSERT INTO playlist_songs (playlist_id, track_id, added_by, position)
-         VALUES ($1, $2, $3, COALESCE($4, (SELECT COALESCE(MAX(position), 0) + 1 FROM playlist_songs WHERE playlist_id = $1)))
+         VALUES ($1, $2, $3, COALESCE($4, (
+           SELECT COALESCE(MAX(position), 0) + 1 FROM playlist_songs WHERE playlist_id = $1
+         )))
          RETURNING id, playlist_id, track_id, added_by, position, added_at`,
         [playlistId, trackId, userId, position]
       );
 
       return result.rows[0];
     } catch (err) {
-      if (err.code === "23505") {
-        throw new BadRequestError("Song already exists in this playlist");
-      }
       throw err;
     }
   }

@@ -32,6 +32,34 @@ describe("PlaylistSong.addSongToPlaylist", function () {
     }));
   });
 
+  test("inserts song at specific position and shifts others", async function () {
+    await PlaylistSong.addSongToPlaylist({
+      playlistId: testPlaylistIds[0],
+      trackId: "spotify:track:one",
+      userId: testUserIds[0]
+    });
+
+    await PlaylistSong.addSongToPlaylist({
+      playlistId: testPlaylistIds[0],
+      trackId: "spotify:track:two",
+      userId: testUserIds[0]
+    });
+
+    await PlaylistSong.addSongToPlaylist({
+      playlistId: testPlaylistIds[0],
+      trackId: "spotify:track:inserted",
+      userId: testUserIds[0],
+      position: 1
+    });
+
+    const songs = await PlaylistSong.getSongsInPlaylist(testPlaylistIds[0]);
+    expect(songs.map(s => s.track_id)).toEqual([
+      "spotify:track:inserted",
+      "spotify:track:one",
+      "spotify:track:two"
+    ]);
+  });
+
   test("throws BadRequestError on duplicate song", async function () {
     await PlaylistSong.addSongToPlaylist({
       playlistId: testPlaylistIds[0],
