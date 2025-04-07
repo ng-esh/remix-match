@@ -97,3 +97,57 @@ describe("User.getByUsername", function () {
     expect(user).toBeNull();
   });
 });
+
+describe("User.searchByUsername", function () {
+  test("returns matching users by partial username", async function () {
+    const results = await User.searchByUsername("user");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]).toHaveProperty("username");
+  });
+
+  test("returns empty array if no match", async function () {
+    const results = await User.searchByUsername("nonexistent");
+    expect(results).toEqual([]);
+  });
+});
+
+
+describe("User.update", function () {
+  test("successfully updates username", async function () {
+    const updated = await User.update(testUserIds[0], { username: "newname" });
+    expect(updated).toEqual(
+      expect.objectContaining({
+        id: testUserIds[0],
+        username: "newname",
+        email: "user1@test.com",
+      })
+    );
+  });
+
+  test("throws BadRequestError if username missing", async function () {
+    await expect(User.update(testUserIds[0], {})).rejects.toThrow(BadRequestError);
+  });
+
+  test("throws NotFoundError if user not found", async function () {
+    await expect(User.update(9999, { username: "ghost" })).rejects.toThrow(NotFoundError);
+  });
+
+  test("throws BadRequestError if username is taken", async function () {
+    await expect(User.update(testUserIds[0], { username: "user2" })).rejects.toThrow(BadRequestError);
+  });
+});
+
+describe("User.delete", function () {
+  test("successfully deletes user", async function () {
+    const deletedId = await User.delete(testUserIds[0]);
+    expect(deletedId).toBe(testUserIds[0]);
+
+    const user = await User.getById(testUserIds[0]);
+    expect(user).toBeNull();
+  });
+
+  test("throws NotFoundError if user not found", async function () {
+    await expect(User.delete(9999)).rejects.toThrow(NotFoundError);
+  });
+});
+

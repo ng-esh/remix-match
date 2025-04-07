@@ -7,18 +7,18 @@ const { createToken } = require("../helpers/tokens");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
-let testUserToken;
-let testUserToken2;
-let testUserId;
-let testUserId2;
+// Arrays for multiple users
+const testUserIds = [];
+const testUserTokens = [];
+
 let testPlaylistId;
 let testPlaylistId2;
-let testTrackId = "spotify:track:test123";
-let testTrackId2 = "spotify:track:test456";
+const testTrackId = "spotify:track:test123";
+const testTrackId2 = "spotify:track:test456";
 let testSessionId;
 
 async function commonBeforeAll() {
-  // Clear tables
+  // Clear all tables
   await db.query("DELETE FROM live_session_users");
   await db.query("DELETE FROM live_sessions");
   await db.query("DELETE FROM shares");
@@ -39,41 +39,47 @@ async function commonBeforeAll() {
       ('bob', $2, 'bob@example.com')
     RETURNING id`, [hashedPw1, hashedPw2]);
 
-  testUserId = resUsers.rows[0].id;
-  testUserId2 = resUsers.rows[1].id;
+  testUserIds.push(resUsers.rows[0].id);
+  testUserIds.push(resUsers.rows[1].id);
 
-  testUserToken = createToken({ id: testUserId });
-  testUserToken2 = createToken({ id: testUserId2 });
+  testUserTokens.push(createToken({ id: testUserIds[0], 
+    username: "alice", 
+    email: "alice@example.com" }));
 
-  // Insert playlists
+  testUserTokens.push(createToken({ id: testUserIds[1], 
+    username: "bob", 
+    email: "bob@example.com" }));
+
+
+  // Insert test playlists
   const resPlaylists = await db.query(`
     INSERT INTO playlists (user_id, name, is_public)
     VALUES 
       ($1, 'Alice Public', TRUE),
       ($2, 'Bob Private', FALSE)
-    RETURNING id`, [testUserId, testUserId2]);
+    RETURNING id`, [testUserIds[0], testUserIds[1]]);
 
   testPlaylistId = resPlaylists.rows[0].id;
   testPlaylistId2 = resPlaylists.rows[1].id;
 
-  // Add songs
+  // Add songs to a playlist
   await db.query(`
     INSERT INTO playlist_songs (playlist_id, track_id, added_by)
     VALUES 
       ($1, $2, $3),
-      ($1, $4, $3)`, [testPlaylistId, testTrackId, testUserId, testTrackId2]);
+      ($1, $4, $3)`, [testPlaylistId, testTrackId, testUserIds[0], testTrackId2]);
 
-  // Create a live session
+  // Create a live listening session
   const resSession = await db.query(`
     INSERT INTO live_sessions (host_id, session_name, source_type, source_id, is_active)
     VALUES ($1, 'Test Session', 'playlist', $2, TRUE)
-    RETURNING id`, [testUserId, testPlaylistId]);
+    RETURNING id`, [testUserIds[0], testPlaylistId]);
 
   testSessionId = resSession.rows[0].id;
 
   await db.query(`
     INSERT INTO live_session_users (session_id, user_id)
-    VALUES ($1, $2)`, [testSessionId, testUserId]);
+    VALUES ($1, $2)`, [testSessionId, testUserIds[0]]);
 }
 
 async function commonBeforeEach() {
@@ -84,25 +90,28 @@ async function commonAfterEach() {
   await db.query("ROLLBACK");
 }
 
+let ended = false;
 async function commonAfterAll() {
-  await db.end();
+  if (!ended) {
+    ended = true;
+    await db.end();
+  }
 }
+
 
 module.exports = {
   request,
   app,
   db,
-  testUserToken,
-  testUserToken2,
-  testUserId,
-  testUserId2,
+  commonBeforeAll,
+  commonBeforeEach,
+  commonAfterEach,
+  commonAfterAll,
+  testUserIds,
+  testUserTokens,
   testPlaylistId,
   testPlaylistId2,
   testTrackId,
   testTrackId2,
   testSessionId,
-  commonBeforeAll,
-  commonBeforeEach,
-  commonAfterEach,
-  commonAfterAll
 };

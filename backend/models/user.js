@@ -135,6 +135,69 @@ class User {
     );
     return result.rows[0] || null;
   }
+
+  /** Search users by partial username (case-insensitive). */
+  static async searchByUsername(query) {
+    const result = await db.query(
+       `SELECT id, username
+        FROM users
+        WHERE username ILIKE $1`,
+        [`%${query}%`]
+      );
+      return result.rows;
+    }
+
+  /**
+   * Update user data (only username allowed).
+   *
+   * @param {number} userId - ID of the user to update.
+   * @param {Object} data - Data to update (only { username } allowed).
+   * @returns {Object} - Updated user data.
+   * @throws {BadRequestError} - If no data or invalid field provided.
+   * @throws {NotFoundError} - If user not found.
+   */
+  static async update(userId, data) {
+    if (!data || !data.username) {
+      throw new BadRequestError("Username is required to update");
+    }
+
+    try {
+      const result = await db.query(
+        `UPDATE users
+        SET username = $1
+        WHERE id = $2
+        RETURNING id, email, username, created_at`,
+        [data.username, userId]
+      );
+
+      const user = result.rows[0];
+      if (!user) throw new NotFoundError(`No user found with ID: ${userId}`);
+
+      return user;
+
+    } catch (err) {
+      // Handle unique constraint error
+      if (err.code === '23505' && err.detail.includes("username")) {
+        throw new BadRequestError("Username is already taken");
+      }
+
+      throw err; // Rethrow other unexpected errors
+    }
+  }
+
+  
+  /** Delete user. */
+  static async delete(userId) {
+    const result = await db.query(
+      `DELETE FROM users
+       WHERE id = $1
+       RETURNING id`,
+      [userId]
+    );
+    const user = result.rows[0];
+    if (!user) throw new NotFoundError(`No user with ID: ${userId}`);
+    return user.id;
+  }
 }
 
 module.exports = User;

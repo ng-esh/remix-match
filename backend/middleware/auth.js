@@ -23,7 +23,9 @@ function authenticateJWT(req, res, next) {
     const authHeader = req.headers && req.headers.authorization;
     if (authHeader) {
       const token = authHeader.replace(/^[Bb]earer /, "").trim();
-      res.locals.user = jwt.verify(token, SECRET_KEY);
+      const payload = jwt.verify(token, SECRET_KEY);
+      console.log("authenticateJWT → decoded token:", payload);
+      res.locals.user = payload;
     }
     return next();
   } catch (err) {
@@ -41,6 +43,7 @@ function authenticateJWT(req, res, next) {
  */
 function ensureLoggedIn(req, res, next) {
   try {
+    console.log("ensureLoggedIn → res.locals.user:", res.locals.user);
     if (!res.locals.user) throw new UnauthorizedError("You must be logged in");
     return next();
   } catch (err) {
@@ -143,11 +146,6 @@ async function ensurePlaylistVisible(req, res, next) {
   }
 }
 
-
-
-afterAll(async () => {
-  await db.end();
-});
 
 module.exports = {
   authenticateJWT,

@@ -132,22 +132,24 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
  * PATCH /users/:userId
  * 
  * Update user profile.
- * Request body: { email, password }
+ * Request body: { username }
  * Authorization: must be the correct user.
  */
+
 router.patch("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
   try {
-    const data = req.body;
-    if (!data.email && !data.password) {
-      throw new BadRequestError("At least one field must be provided to update");
+    const { username } = req.body;
+    if (!username) {
+      throw new BadRequestError("Username is required to update");
     }
 
-    const updated = await User.update(req.params.userId, data);
+    const updated = await User.update(req.params.userId, { username });
     return res.json({ user: updated });
   } catch (err) {
     return next(err);
   }
 });
+
 
 /**
  * DELETE /users/:userId
@@ -166,4 +168,4 @@ router.delete("/users/:userId", ensureLoggedIn, ensureCorrectUser, async functio
 
 module.exports = router;
 
-module.exports = router;
+

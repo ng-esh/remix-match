@@ -10,6 +10,7 @@ function createToken(user) {
     // Sign the entire user object (excluding password)
     const payload = {
       id: user.id,
+      username : user.username,
       email: user.email,
       ...(user.isAdmin !== undefined && { isAdmin: user.isAdmin })
     };
