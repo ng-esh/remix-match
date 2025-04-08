@@ -6,7 +6,6 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
   testUserIds
 } = require("./_testCommon");
 const {
@@ -18,7 +17,7 @@ const {
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("User.register", function () {
   test("successfully registers new user", async function () {

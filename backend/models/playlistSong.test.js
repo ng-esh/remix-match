@@ -6,7 +6,7 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
+  
   testUserIds,
   testPlaylistIds,
 } = require("./_testCommon");
@@ -15,7 +15,7 @@ const { BadRequestError, NotFoundError } = require("../expressError");
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("PlaylistSong.addSongToPlaylist", function () {
   test("adds a song to a playlist with correct position", async function () {

@@ -6,6 +6,7 @@ const db = require("../db");
 const { createToken } = require("../helpers/tokens");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config");
+const teardown = require('../tests/dbTeardown'); 
 
 // Arrays for multiple users
 const testUserIds = [];
@@ -90,13 +91,9 @@ async function commonAfterEach() {
   await db.query("ROLLBACK");
 }
 
-let ended = false;
-async function commonAfterAll() {
-  if (!ended) {
-    ended = true;
-    await db.end();
-  }
-}
+afterAll(async function () {
+  await teardown(db);
+});
 
 
 module.exports = {
@@ -106,7 +103,6 @@ module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
   testUserIds,
   testUserTokens,
   testPlaylistId,

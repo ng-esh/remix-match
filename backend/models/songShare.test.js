@@ -7,7 +7,7 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
+ 
   testUserIds,
   testPlaylistIds
 } = require("./_testCommon");
@@ -15,7 +15,7 @@ const {
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("SongShare.shareSong", function () {
   test("successfully shares a song", async function () {

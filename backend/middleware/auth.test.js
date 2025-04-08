@@ -12,6 +12,9 @@ const {
 
 const db = require("../db");
 const { SECRET_KEY } = require("../config");
+const teardown = require("../tests/dbTeardown");
+
+
 
 const testJwt = jwt.sign({ id: 1, username: "user1" }, SECRET_KEY);
 const badJwt = jwt.sign({ id: 1, username: "user1" }, "wrong");
@@ -142,4 +145,8 @@ describe("ensurePlaylistVisible", () => {
     await ensurePlaylistVisible(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
   });
+});
+
+afterAll(async () => {
+  await teardown(db);
 });

@@ -6,7 +6,6 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
   testUserIds,
   testPlaylistIds
 } = require("./_testCommon");
@@ -18,7 +17,7 @@ const {
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("Playlist.create", function () {
   test("creates a playlist successfully", async function () {

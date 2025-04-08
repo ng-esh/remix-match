@@ -5,12 +5,12 @@
 const db = require("../db");
 const LiveListening = require("./liveListening");
 const { BadRequestError, ForbiddenError, NotFoundError } = require("../expressError");
-const { commonBeforeAll, commonBeforeEach, commonAfterEach, commonAfterAll, testUserIds, testPlaylistIds } = require("./_testCommon");
+const { commonBeforeAll, commonBeforeEach, commonAfterEach, testUserIds, testPlaylistIds } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("LiveListening.createSession", () => {
   test("creates a session", async () => {

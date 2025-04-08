@@ -6,7 +6,7 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
+  
   testUserIds,
   testPlaylistIds,
 } = require("./_testCommon");
@@ -15,7 +15,7 @@ const { BadRequestError, NotFoundError } = require("../expressError");
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("Vote.castVote", function () {
   test("casts an upvote", async function () {

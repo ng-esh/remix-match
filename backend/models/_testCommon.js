@@ -5,6 +5,7 @@
 const db = require("../db");  // now correct relative path
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config"); // adjusted path
+const teardown = require('../tests/dbTeardown'); 
 
 // Store useful IDs for reference in model tests
 let testUserIds = [];
@@ -51,6 +52,10 @@ async function commonAfterEach() {
 async function commonAfterAll() {
   await db.end();
 }
+
+afterAll(async function () {
+  await teardown(db);
+});
 
 module.exports = {
   commonBeforeAll,

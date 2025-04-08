@@ -6,7 +6,6 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
   testUserIds,
   testPlaylistIds,
 } = require("./_testCommon");
@@ -15,7 +14,7 @@ const { BadRequestError, NotFoundError } = require("../expressError");
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("Share.sharePlaylist", function () {
   test("shares a playlist with another user", async function () {

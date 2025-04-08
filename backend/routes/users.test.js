@@ -9,7 +9,6 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
   testUserIds,
   testUserTokens,
 } = require("./_testCommonRoutes");
@@ -17,7 +16,7 @@ const {
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
-afterAll(commonAfterAll);
+
 
 describe("POST /auth/register", () => {
   test("registers a new user", async () => {
@@ -157,13 +156,12 @@ describe("GET /users/search?query=", () => {
     const jwt = require("jsonwebtoken");
     const { SECRET_KEY } = require("../config");
     const decoded = jwt.verify(testUserTokens[0], SECRET_KEY);
-    console.log("DECODED TOKEN:", decoded);
+    
     
     const resp = await request(app)
       .get(`/search?query=ali`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
-
-    console.log(resp.body, resp.statusCode);
+    
     expect(resp.body.length).toBeGreaterThan(0);
     expect(resp.body[0]).toHaveProperty("username");
   });
