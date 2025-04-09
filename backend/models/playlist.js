@@ -36,7 +36,13 @@ class Playlist {
       [userId, name, isPublic]
     );
 
-    return result.rows[0];
+    return {
+      id: result.rows[0].id,
+      userId: result.rows[0].user_id,
+      name: result.rows[0].name,
+      isPublic: result.rows[0].is_public,
+      createdAt: result.rows[0].created_at,
+    }
   }
 
   /**
@@ -114,6 +120,7 @@ class Playlist {
      * Update playlist name or visibility.
      *
      * @param {number} playlistId - Playlist ID.
+     * @param {number} userId - ID of the user who owns the playlist.
      * @param {Object} data - Fields to update.
      * @param {string} [data.name] - New playlist name.
      * @param {boolean} [data.isPublic] - New visibility setting.
@@ -121,7 +128,7 @@ class Playlist {
      * @throws {NotFoundError} - If playlist does not exist.
      * @throws {BadRequestError} - If no fields are provided.
      */
-  static async update(playlistId, { name, isPublic }) {
+  static async update(playlistId, userId, { name, isPublic }) {
     const fields = [];
     const values = [];
     let idx = 1;
@@ -139,21 +146,25 @@ class Playlist {
     if (fields.length === 0) {
       throw new BadRequestError("No valid fields to update");
     }
+
+    // Add playlistId and userId to WHERE clause
+    values.push(playlistId, userId);
+
   
     // Playlist ID should come after the fields — its placeholder needs the correct number
     const query = `
       UPDATE playlists
       SET ${fields.join(", ")}
-      WHERE id = $${idx}
+      WHERE id = $${idx++} AND user_id = $${idx}
       RETURNING id, user_id, name, is_public, created_at
     `;
-    values.push(playlistId);
+    
   
     const result = await db.query(query, values);
     const updated = result.rows[0];
   
     if (!updated) {
-      throw new NotFoundError(`Playlist with ID ${playlistId} not found`);
+      throw new NotFoundError(`Playlist not found`);
     }
   
     return updated;

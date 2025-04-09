@@ -25,12 +25,13 @@ function authenticateJWT(req, res, next) {
       const token = authHeader.replace(/^[Bb]earer /, "").trim();
       const payload = jwt.verify(token, SECRET_KEY);
       res.locals.user = payload;
-    }
+    } 
     return next();
   } catch (err) {
     return next();
   }
 }
+
 
 /**
  * Middleware: Ensure a user is logged in.

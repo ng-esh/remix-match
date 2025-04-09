@@ -29,9 +29,9 @@ describe("Playlist.create", function () {
 
     expect(newPlaylist).toEqual(
       expect.objectContaining({
-        user_id: testUserIds[0],
+        userId: testUserIds[0],
         name: "Lo-Fi Mix",
-        is_public: true
+        isPublic: true
       })
     );
   });
@@ -86,7 +86,7 @@ describe("Playlist.getById", function () {
 
 describe("Playlist.update", function () {
   test("updates playlist name and visibility", async function () {
-    const updated = await Playlist.update(testPlaylistIds[0], {
+    const updated = await Playlist.update(testPlaylistIds[0], testUserIds[0], {
       name: "Updated Name",
       isPublic: false
     });
@@ -101,7 +101,7 @@ describe("Playlist.update", function () {
   });
 
   test("does not update visibility if not passed", async function () {
-    const updated = await Playlist.update(testPlaylistIds[0], {
+    const updated = await Playlist.update(testPlaylistIds[0],  testUserIds[0], {
       name: "Name Only"  // no isPublic
     });
   
@@ -114,7 +114,7 @@ describe("Playlist.update", function () {
   
   test("throws NotFoundError if playlist not found", async function () {
     await expect(
-      Playlist.update(9999, { name: "Nope" })
+      Playlist.update(9999, testUserIds[0],  { name: "Nope" })
     ).rejects.toThrow(NotFoundError);
   });
 });

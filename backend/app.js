@@ -2,7 +2,13 @@
 const express = require('express');
 const cors = require("cors");
 
+const morgan = require('morgan');
+const app = express();
+
+
 const { authenticateJWT } = require("./middleware/auth");
+app.use(express.json());
+
 const userRoutes = require("./routes/users");
 const playlistRoutes = require ("./routes/playlists");
 const playlistSongRoutes = require ("./routes/playlistSongs");
@@ -11,22 +17,18 @@ const songShareRoutes = require ("./routes/songShares");
 const voteRoutes = require ("./routes/votes");
 const liveListeningRoutes = require ("./routes/liveListenings");
 
-const morgan = require('morgan');
-const app = express();
-
 app.use(morgan('dev'));
-app.use(express.json());
 app.use(cors());
 app.use(authenticateJWT);
 
 // Add routes here later
 app.use("/", userRoutes);
-app.use("/", playlistRoutes);
-app.use("/", playlistSongRoutes);
-app.use("/", playlistShareRoutes);
-app.use("/", songShareRoutes);
-app.use("/", voteRoutes);
-app.use("/", liveListeningRoutes);
+app.use("/playlists", playlistRoutes);
+app.use("/playlist-songs", playlistSongRoutes);
+app.use("/playlist-shares", playlistShareRoutes);
+app.use("/song-shares", songShareRoutes);
+app.use("/votes", voteRoutes);
+app.use("/lives", liveListeningRoutes);
 
 app.get('/', (req, res) => {
   return res.json({ message: 'Welcome to ReMixMatch API 🎵' });

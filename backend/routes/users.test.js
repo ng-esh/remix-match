@@ -4,6 +4,7 @@ const request = require("supertest");
 const app = require("../app");
 const db = require("../db");
 const User = require("../models/user");
+const dbTeardown = require("../tests/dbTeardown");
 
 const {
   commonBeforeAll,
@@ -16,9 +17,13 @@ const {
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
+afterAll(async () => {
+  await dbTeardown(db);
+});
 
 
-describe("POST /auth/register", () => {
+
+describe("POST /users/auth/register", () => {
   test("registers a new user", async () => {
     const resp = await request(app)
       .post("/auth/register")
@@ -41,7 +46,7 @@ describe("POST /auth/register", () => {
   });
 });
 
-describe("POST /auth/login", () => {
+describe("POST /users/auth/login", () => {
   test("logs in with correct credentials", async () => {
     const resp = await request(app)
       .post("/auth/login")
@@ -151,19 +156,15 @@ describe("DELETE /users/:userId", () => {
 
 
 
-describe("GET /users/search?query=", () => {
+describe("GET /search?query=", () => {
   test("searches by username", async () => {
-    const jwt = require("jsonwebtoken");
-    const { SECRET_KEY } = require("../config");
-    const decoded = jwt.verify(testUserTokens[0], SECRET_KEY);
-    
     
     const resp = await request(app)
       .get(`/search?query=ali`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
-    
-    expect(resp.body.length).toBeGreaterThan(0);
-    expect(resp.body[0]).toHaveProperty("username");
+      
+    expect(resp.body.users.length).toBeGreaterThan(0);
+    expect(resp.body.users[0]).toHaveProperty("username");
   });
 
   test("requires a query string", async () => {

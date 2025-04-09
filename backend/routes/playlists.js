@@ -63,7 +63,7 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
  *
  * Authorization required: optional, but restricted for private playlists
  */
-router.get("/:id", authenticateJWT, async function (req, res, next) {
+router.get("/:id", ensureLoggedIn, async function (req, res, next) {
   try {
     const user = res.locals.user;
     const playlistId = req.params.id;
@@ -73,14 +73,20 @@ router.get("/:id", authenticateJWT, async function (req, res, next) {
     }
 
     const playlist = await Playlist.getById(playlistId);
-
-    if (!playlist.is_public) {
-      if (!user || playlist.user_id !== user.id) {
-        throw new ForbiddenError("Private playlist: access denied.");
-      }
+    const formattedPlaylist = {
+      id: playlist.id,
+      name: playlist.name,
+      userId: playlist.user_id,
+      isPublic: playlist.is_public,
+      songs: playlist.songs || []
+    };
+    
+    if (!playlist.is_public && playlist.user_id !== user.id) {
+      throw new ForbiddenError("Private playlist: access denied.");
     }
+    
 
-    return res.json({ playlist });
+    return res.json({ playlist: formattedPlaylist });
   } catch (err) {
     return next(err);
   }
@@ -99,8 +105,14 @@ router.get("/:id", authenticateJWT, async function (req, res, next) {
  */
 router.post("/", ensureLoggedIn, async function (req, res, next) {
   try {
-    const userId = res.locals.user.id;
+     
     const { name, isPublic } = req.body;
+    const userId = res.locals.user?.id;
+
+    if (!name || typeof isPublic !== "boolean") {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
     const playlist = await Playlist.create({ userId, name, isPublic });
     return res.status(201).json({ playlist });
   } catch (err) {
@@ -123,8 +135,23 @@ router.patch("/:id", ensureLoggedIn, ensurePlaylistOwner, async function (req, r
   try {
     const userId = res.locals.user.id;
     const { name, isPublic } = req.body;
-    const playlist = await Playlist.update(req.params.id, userId, { name, isPublic });
-    return res.json({ playlist });
+
+    // ✅ Validation to ensure at least one field is being updated
+    if (name === undefined && isPublic === undefined) {
+      throw new BadRequestError("Must include name or isPublic to update.");
+    }
+
+    const updated = await Playlist.update(req.params.id, userId, { name, isPublic });
+    
+
+    return res.json({
+      playlist: {
+        id: updated.id,
+        name: updated.name,
+        userId: updated.user_id,
+        isPublic: updated.is_public,
+      },
+    });
   } catch (err) {
     return next(err);
   }

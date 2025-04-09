@@ -30,8 +30,7 @@ const db = require("../db");
  * Response:
  * { token }
  */
-router.post(
-  "/auth/register",
+router.post("/auth/register",
   [
     body("email").isEmail().withMessage("Invalid email"),
     body("password").isLength({ min: 6 }).withMessage("Password too short"),
@@ -64,8 +63,7 @@ router.post(
  * Response:
  * { token }
  */
-router.post(
-  "/auth/login",
+router.post("/auth/login",
   [
     body("email").isEmail().withMessage("Invalid email"),
     body("password").notEmpty().withMessage("Password required"),
@@ -122,7 +120,7 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
       [`%${query}%`]
     );
 
-    return res.json(usersRes.rows);
+    return res.json({users: usersRes.rows});
   } catch (err) {
     return next(err);
   }
