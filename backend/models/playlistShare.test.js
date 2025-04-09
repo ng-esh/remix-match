@@ -9,7 +9,7 @@ const {
   testUserIds,
   testPlaylistIds,
 } = require("./_testCommon");
-const { BadRequestError, NotFoundError } = require("../expressError");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../expressError");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -93,25 +93,57 @@ describe("Share.getSharedPlaylistsForUser", function () {
   });
 });
 
-describe("Share.removeSharedPlaylist", function () {
-  test("removes a shared playlist", async function () {
-    await Share.sharePlaylist({
+describe("Share.removeShareIfAuthorized", function () {
+  test("removes a shared playlist when user is authorized (receiver)", async function () {
+    const share = await Share.sharePlaylist({
       playlistId: testPlaylistIds[0],
       fromUserId: testUserIds[0],
       toUserId: testUserIds[1],
     });
 
-    await Share.removeSharedPlaylist(testPlaylistIds[0], testUserIds[1]);
+    await Share.removeShareIfAuthorized(share.id, testUserIds[1]);
 
-    await expect(
-      Share.getSharedUsers(testPlaylistIds[0])
-    ).rejects.toThrow(NotFoundError);
+    const result = await db.query(
+      `SELECT * FROM shared_playlists WHERE id = $1`,
+      [share.id]
+    );
+    expect(result.rows.length).toBe(0);
   });
 
-  test("throws NotFoundError if playlist not shared", async function () {
+  test("removes a shared playlist when user is authorized (sender)", async function () {
+    const share = await Share.sharePlaylist({
+      playlistId: testPlaylistIds[0],
+      fromUserId: testUserIds[0],
+      toUserId: testUserIds[1],
+    });
+
+    await Share.removeShareIfAuthorized(share.id, testUserIds[0]);
+
+    const result = await db.query(
+      `SELECT * FROM shared_playlists WHERE id = $1`,
+      [share.id]
+    );
+    expect(result.rows.length).toBe(0);
+  });
+
+  test("throws ForbiddenError if user is neither sender nor receiver", async function () {
+    const share = await Share.sharePlaylist({
+      playlistId: testPlaylistIds[0],
+      fromUserId: testUserIds[0],
+      toUserId: testUserIds[1],
+    });
+
     await expect(
-      Share.removeSharedPlaylist(testPlaylistIds[0], testUserIds[1])
+      Share.removeShareIfAuthorized(share.id, testUserIds[2])
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  test("throws NotFoundError if share doesn't exist", async function () {
+    await expect(
+      Share.removeShareIfAuthorized(999999, testUserIds[0])
     ).rejects.toThrow(NotFoundError);
   });
 });
+
+
 

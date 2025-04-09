@@ -9,7 +9,7 @@
 // // models/share.js
 
 const db = require("../db");
-const { NotFoundError, BadRequestError } = require("../expressError");
+const { NotFoundError, BadRequestError, ForbiddenError } = require("../expressError");
 
 class Share {
   /**
@@ -93,26 +93,45 @@ class Share {
     return result.rows;
   }
 
-  /**
-   * Remove a shared playlist from a user's shared list.
+    /**
+   * Remove a shared playlist interaction by its unique share ID.
    *
-   * @param {number} playlistId - The ID of the playlist.
-   * @param {number} toUserId - The ID of the user removing the shared playlist.
+   * Only the sender (fromUserId) or receiver (toUserId) can delete it.
+   *
+   * @param {number} shareId - The unique ID of the share interaction.
+   * @param {number} userId - The ID of the logged-in user requesting deletion.
    * @returns {void}
-   * @throws {NotFoundError} - If the playlist was not shared with the user.
+   * @throws {ForbiddenError} - If the user is not authorized to delete this share.
+   * @throws {NotFoundError} - If no such share exists.
    */
-  static async removeSharedPlaylist(playlistId, toUserId) {
-    const result = await db.query(
-      `DELETE FROM shared_playlists
-       WHERE playlist_id = $1 AND to_user_id = $2
-       RETURNING id`,
-      [playlistId, toUserId]
-    );
 
-    if (result.rowCount === 0) {
-      throw new NotFoundError(`This playlist was not shared with user ID ${toUserId}`);
+    static async removeShareIfAuthorized(shareId, userId) {
+      const result = await db.query(
+        `SELECT id, from_user_id, to_user_id
+         FROM shared_playlists
+         WHERE id = $1`,
+        [shareId]
+      );
+    
+      const share = result.rows[0];
+
+      if (!share) {
+        throw new NotFoundError(`Share with ID ${shareId} not found`);
+      }
+      
+      if (Number(share.from_user_id) !== Number(userId) &&
+          Number(share.to_user_id) !== Number(userId)) {
+        throw new ForbiddenError("You are not authorized to delete this share");
+      }
+      
+      await db.query(
+        `DELETE FROM shared_playlists
+         WHERE id = $1`,
+        [shareId]
+      );
     }
+  
   }
-}
+
 
 module.exports = Share;

@@ -36,10 +36,10 @@ class ExpressError extends Error {
     }
   }
   
-  /** 403 BAD REQUEST error. */
+  /** 403 FORBIDDEN REQUEST error. */
   
   class ForbiddenError extends ExpressError {
-    constructor(message = "Bad Request") {
+    constructor(message = "Forbidden") {
       super(message, 403);
     }
   }

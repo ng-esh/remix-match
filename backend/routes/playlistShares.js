@@ -14,7 +14,7 @@ const router = new express.Router();
 const { ensureLoggedIn } = require("../middleware/auth");
 const Share = require("../models/playlistShare");
 const db = require("../db");
-const { ForbiddenError } = require("../expressError");
+const { NotFoundError, ForbiddenError } = require("../expressError");
 
 /**
  * POST /share
@@ -61,11 +61,14 @@ router.get("/:playlistId/users", ensureLoggedIn, async function (req, res, next)
     );
 
     const playlist = result.rows[0];
-    if (!playlist || playlist.user_id !== res.locals.user.id) {
+    if (!playlist) {
+      throw new NotFoundError(`Playlist ID ${playlistId} not found`);
+    }
+    if (playlist.user_id !== res.locals.user.id) {
       throw new ForbiddenError("Access denied: not your playlist");
     }
 
-    const users = await Share.getUsersSharedWithPlaylist(playlistId);
+    const users = await Share.getSharedUsers(playlistId);
     return res.json({ users });
   } catch (err) {
     return next(err);
@@ -110,4 +113,4 @@ router.delete("/:shareId", ensureLoggedIn, async function (req, res, next) {
 
 module.exports = router;
 
-module.exports = router;
+

@@ -11,6 +11,7 @@ const teardown = require('../tests/dbTeardown');
 // Arrays for multiple users
 const testUserIds = [];
 const testUserTokens = [];
+const testPlaylistIds = []; 
 
 let testPlaylistId;
 let testPlaylistId2;
@@ -32,24 +33,36 @@ async function commonBeforeAll() {
   // Insert test users
   const hashedPw1 = await bcrypt.hash("password1", BCRYPT_WORK_FACTOR);
   const hashedPw2 = await bcrypt.hash("password2", BCRYPT_WORK_FACTOR);
+  const hashedPw3 = await bcrypt.hash("password3", BCRYPT_WORK_FACTOR)
 
   const resUsers = await db.query(`
     INSERT INTO users (username, password, email)
     VALUES 
       ('alice', $1, 'alice@example.com'),
-      ('bob', $2, 'bob@example.com')
-    RETURNING id`, [hashedPw1, hashedPw2]);
+      ('bob', $2, 'bob@example.com'),
+      ('carol', $3, 'carol@example.com')
+    RETURNING id`, [hashedPw1, hashedPw2, hashedPw3]);
 
   testUserIds.push(resUsers.rows[0].id);
   testUserIds.push(resUsers.rows[1].id);
+  testUserIds.push(resUsers.rows[2].id);
 
-  testUserTokens.push(createToken({ id: testUserIds[0], 
+  testUserTokens.push(createToken({ 
+    id: testUserIds[0], 
     username: "alice", 
     email: "alice@example.com" }));
 
-  testUserTokens.push(createToken({ id: testUserIds[1], 
+  testUserTokens.push(createToken({ 
+    id: testUserIds[1], 
     username: "bob", 
     email: "bob@example.com" }));
+
+  testUserTokens.push(createToken({
+    id: testUserIds[2],
+    username: "carol",
+    email: "carol@example.com"
+    }));
+    
 
 
   // Insert test playlists
@@ -62,6 +75,9 @@ async function commonBeforeAll() {
 
   testPlaylistId = resPlaylists.rows[0].id;
   testPlaylistId2 = resPlaylists.rows[1].id;
+
+  // ✅ FIX: push them after they're initialized
+  testPlaylistIds.push(testPlaylistId, testPlaylistId2);
 
   // Add songs to a playlist
   await db.query(`
@@ -96,6 +112,7 @@ afterAll(async function () {
 });
 
 
+
 module.exports = {
   request,
   app,
@@ -107,6 +124,7 @@ module.exports = {
   testUserTokens,
   testPlaylistId,
   testPlaylistId2,
+  testPlaylistIds,
   testTrackId,
   testTrackId2,
   testSessionId,
