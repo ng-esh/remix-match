@@ -30,6 +30,7 @@ app.use("/song-shares", songShareRoutes);
 app.use("/votes", voteRoutes);
 app.use("/lives", liveListeningRoutes);
 
+
 app.get('/', (req, res) => {
   return res.json({ message: 'Welcome to ReMixMatch API 🎵' });
 });

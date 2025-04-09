@@ -86,7 +86,7 @@ async function ensurePlaylistOwner(req, res, next) {
     const user = res.locals.user;
     if (!user) throw new UnauthorizedError("You must be logged in");
 
-    const playlistId = req.params.id;
+    const playlistId = req.params.playlistId || req.params.id;
     const result = await db.query(
       `SELECT user_id FROM playlists WHERE id = $1`,
       [playlistId]
