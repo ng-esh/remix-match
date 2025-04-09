@@ -9,7 +9,7 @@
 "use strict";
 
 const db = require("../db");
-const { BadRequestError, NotFoundError } = require("../expressError");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../expressError");
 
 /** Functions for individual song sharing */
 class SongShare {

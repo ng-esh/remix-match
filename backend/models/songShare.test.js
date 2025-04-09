@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const SongShare = require("./songShare");
-const { NotFoundError } = require("../expressError");
+const { NotFoundError, ForbiddenError } = require("../expressError");
 const {
   commonBeforeAll,
   commonBeforeEach,

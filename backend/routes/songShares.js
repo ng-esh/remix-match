@@ -7,12 +7,14 @@
 // routes/songShares.js
 
 "use strict";
-
+const db = require("../db");
 const express = require("express");
 const router = express.Router();
 
 const SongShare = require("../models/songShare");
 const { ensureLoggedIn } = require("../middleware/auth");
+const { NotFoundError, ForbiddenError } = require("../expressError");
+
 
 /**
  * POST /shares
@@ -92,6 +94,8 @@ router.delete("/:id", ensureLoggedIn, async function (req, res, next) {
     try {
       const userId = res.locals.user.id;
       const shareId = req.params.id;
+
+      console.log("🔍 Attempting to delete share", { userId, shareId });
   
       const result = await db.query(
         `SELECT shared_by, shared_with
@@ -102,16 +106,27 @@ router.delete("/:id", ensureLoggedIn, async function (req, res, next) {
   
       const share = result.rows[0];
   
-      if (!share) throw new NotFoundError(`Share with ID ${shareId} not found`);
-  
-      if (share.shared_by !== userId && share.shared_with !== userId) {
+      if (!share) { 
+        console.error("❌ Share not found", shareId);
+        throw new NotFoundError(`Share with ID ${shareId} not found`);
+      }
+
+      if (Number(share.shared_by) !== userId && Number(share.shared_with) !== userId) {
+        console.error("🚫 Forbidden — not authorized", {
+          userId, 
+          shared_by: share.shared_by,
+          shared_with: share.shared_with
+        });
         throw new ForbiddenError("You do not have permission to delete this share");
       }
   
       await db.query(`DELETE FROM shares WHERE id = $1`, [shareId]);
-  
+
+      console.log("🗑️ Successfully deleted share", shareId);
       return res.json({ deleted: shareId });
+
     } catch (err) {
+      console.error("🔥 DELETE error:", err.constructor.name, err.message);
       return next(err);
     }
   });
