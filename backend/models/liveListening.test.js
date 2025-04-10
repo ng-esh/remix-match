@@ -71,6 +71,23 @@ describe("LiveListening.joinSession and leaveSession", () => {
   });
 });
 
+describe("LiveListening.joinSession", () => {
+  test("should not error on duplicate joins due to ON CONFLICT DO NOTHING", async () => {
+    const session = await LiveListening.createSession({
+      hostId: testUserIds[0],
+      sessionName: "Duplicate Join Test",
+      sourceType: "playlist",
+      sourceId: `${testPlaylistIds[0]}`
+    });
+
+    const firstJoin = await LiveListening.joinSession(session.id, testUserIds[1]);
+    expect(firstJoin).toEqual({ sessionId: session.id, userId: testUserIds[1] });
+
+    const secondJoin = await LiveListening.joinSession(session.id, testUserIds[1]);
+    expect(secondJoin).toEqual({ sessionId: session.id, userId: testUserIds[1] });
+  });
+})
+
 describe("LiveListening.getUserActiveSessions", () => {
   test("returns empty array if user not in sessions", async () => {
     const sessions = await LiveListening.getUserActiveSessions(testUserIds[1]);
@@ -107,12 +124,28 @@ describe("LiveListening.endSession", () => {
 
   test("ends session if host", async () => {
     const msg = await LiveListening.endSession(sessionId, testUserIds[0]);
-    expect(msg).toBe("Session ended successfully.");
+    expect(msg).toEqual({ message: "Session ended successfully." });
   });
 
   test("throws ForbiddenError if not host", async () => {
     await expect(
       LiveListening.endSession(sessionId, testUserIds[1])
     ).rejects.toThrow(ForbiddenError);
+  });
+});
+
+describe("LiveListening.endSession", () => {
+  test("ending an already-ended session should be handled gracefully", async () => {
+    const session = await LiveListening.createSession({
+      hostId: testUserIds[0],
+      sessionName: "End Twice",
+      sourceType: "playlist",
+      sourceId: `${testPlaylistIds[0]}`
+    });
+
+    await LiveListening.endSession(session.id, testUserIds[0]);
+    const result = await LiveListening.endSession(session.id, testUserIds[0]);
+
+    expect(result).toEqual({ message: "Session already inactive" });
   });
 });

@@ -123,23 +123,31 @@ class LiveListening {
   }
 
   /** End a session if the user is the host */
-  static async endSession(sessionId, hostId) {
-    const sessionCheck = await db.query(
-      `SELECT host_id FROM live_sessions WHERE id = $1`,
+  static async endSession(sessionId, userId) {
+    const sessionRes = await db.query(
+      `SELECT host_id, is_active FROM live_sessions WHERE id = $1`,
       [sessionId]
     );
-
-    if (!sessionCheck.rows[0] || sessionCheck.rows[0].host_id !== hostId) {
-      throw new ForbiddenError("Only the host can end the session");
+  
+    const session = sessionRes.rows[0];
+    if (!session) throw new NotFoundError("Session not found");
+  
+    if (session.host_id !== userId) {
+      throw new ForbiddenError("Only the host can end this session");
     }
-
+  
+    if (!session.is_active) {
+      return { message: "Session already inactive" };
+    }
+  
     await db.query(
       `UPDATE live_sessions SET is_active = FALSE WHERE id = $1`,
       [sessionId]
     );
-
-    return "Session ended successfully.";
+  
+    return { message: "Session ended successfully." };
   }
+  
 }
 
 module.exports = LiveListening;
