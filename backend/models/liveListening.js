@@ -147,6 +147,39 @@ class LiveListening {
   
     return { message: "Session ended successfully." };
   }
+
+  /**
+   * Get session by ID.
+   * Used for validating session ownership or checking session status.
+   * @param {number} sessionId
+   * @returns {Object} session data or throws NotFoundError
+   */
+  static async getSessionById(sessionId) {
+    const result = await db.query(
+      `SELECT id, host_id, session_name, source_type, source_id, is_public, is_active, created_at
+      FROM live_sessions
+      WHERE id = $1`,
+      [sessionId]
+    );
+
+    const session = result.rows[0];
+    if (!session) throw new NotFoundError(`No session with ID: ${sessionId}`);
+    return session;
+  }
+
+  /**
+   * Get all public and active sessions.
+   * @returns {Array<Object>} list of sessions
+   */
+    static async getPublicSessions() {
+    const result = await db.query(
+      `SELECT id, host_id, session_name, source_type, source_id, is_active, created_at
+      FROM live_sessions
+      WHERE is_public = TRUE AND is_active = TRUE`
+    );
+    return result.rows;
+  }
+
   
 }
 

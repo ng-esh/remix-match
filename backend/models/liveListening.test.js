@@ -149,3 +149,67 @@ describe("LiveListening.endSession", () => {
     expect(result).toEqual({ message: "Session already inactive" });
   });
 });
+
+describe("LiveListening.getSessionById", () => {
+  test("returns correct session by ID", async () => {
+    const created = await LiveListening.createSession({
+      hostId: testUserIds[0],
+      sessionName: "GetById Session",
+      sourceType: "playlist",
+      sourceId: `${testPlaylistIds[0]}`
+    });
+
+    // Make it public to match expected shape
+    await db.query(`UPDATE live_sessions SET is_public = TRUE WHERE id = $1`, [created.id]);
+
+    const session = await LiveListening.getSessionById(created.id);
+
+    expect(session).toEqual(expect.objectContaining({
+      id: created.id,
+      host_id: testUserIds[0],
+      session_name: "GetById Session",
+      source_type: "playlist",
+      source_id: `${testPlaylistIds[0]}`,
+      is_active: true,
+      is_public: true,
+      created_at: expect.anything()
+    }));
+  });
+
+  test("throws NotFoundError if session does not exist", async () => {
+    await expect(LiveListening.getSessionById(0)).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe("LiveListening.getPublicSessions", () => {
+  test("returns public and active sessions only", async () => {
+    const session = await LiveListening.createSession({
+      hostId: testUserIds[0],
+      sessionName: "Public Session",
+      sourceType: "playlist",
+      sourceId: `${testPlaylistIds[0]}`
+    });
+
+    await db.query(`UPDATE live_sessions SET is_public = TRUE WHERE id = $1`, [session.id]);
+
+    const sessions = await LiveListening.getPublicSessions();
+
+    expect(sessions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: session.id,
+          host_id: testUserIds[0],
+          session_name: "Public Session",
+          is_active: true
+        })
+      ])
+    );
+  });
+
+  test("returns empty array if no public sessions", async () => {
+    // Clear table or ensure no public sessions
+    await db.query(`UPDATE live_sessions SET is_public = FALSE`);
+    const sessions = await LiveListening.getPublicSessions();
+    expect(sessions).toEqual([]);
+  });
+});

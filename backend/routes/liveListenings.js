@@ -25,13 +25,17 @@ const { BadRequestError, ForbiddenError } = require("../expressError");
  */
 router.post("/create", ensureLoggedIn, async function (req, res, next) {
   try {
-    const session = await LiveListening.createSession({
+    const payload = {
       hostId: res.locals.user.id,
       sessionName: req.body.sessionName,
       sourceType: req.body.sourceType,
       sourceId: req.body.sourceId,
-      isPublic: req.body.isPublic ?? false,
-    });
+      isPublic: req.body.isPublic ?? false
+    };
+
+    console.log("🎯 createSession payload", payload);
+
+    const session = await LiveListening.createSession(payload);
     return res.status(201).json({ session });
   } catch (err) {
     return next(err);
@@ -47,6 +51,10 @@ router.post("/:sessionId/invite-token", ensureLoggedIn, async function (req, res
     const sessionId = +req.params.sessionId;
     const session = await LiveListening.getSessionById(sessionId);
 
+    if (!session) {
+      console.error("🚫 No session found for invite-token");
+    }
+    
     if (session.host_id !== res.locals.user.id) {
       throw new ForbiddenError("Only the host can generate invite tokens.");
     }
@@ -141,7 +149,7 @@ router.patch("/:sessionId/end", ensureLoggedIn, async function (req, res, next) 
   try {
     const sessionId = +req.params.sessionId;
     const result = await LiveListening.endSession(sessionId, res.locals.user.id);
-    return res.json({ message: result });
+    return res.json(result);
   } catch (err) {
     return next(err);
   }

@@ -91,44 +91,35 @@ router.get("/sent", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.delete("/:id", ensureLoggedIn, async function (req, res, next) {
-    try {
-      const userId = res.locals.user.id;
-      const shareId = req.params.id;
+  try {
+    const userId = res.locals.user.id;
+    const shareId = req.params.id;
 
-      console.log("🔍 Attempting to delete share", { userId, shareId });
-  
-      const result = await db.query(
-        `SELECT shared_by, shared_with
-         FROM shares
-         WHERE id = $1`,
-        [shareId]
-      );
-  
-      const share = result.rows[0];
-  
-      if (!share) { 
-        console.error("❌ Share not found", shareId);
-        throw new NotFoundError(`Share with ID ${shareId} not found`);
-      }
+    const result = await db.query(
+      `SELECT shared_by, shared_with
+       FROM shares
+       WHERE id = $1`,
+      [shareId]
+    );
 
-      if (Number(share.shared_by) !== userId && Number(share.shared_with) !== userId) {
-        console.error("🚫 Forbidden — not authorized", {
-          userId, 
-          shared_by: share.shared_by,
-          shared_with: share.shared_with
-        });
-        throw new ForbiddenError("You do not have permission to delete this share");
-      }
-  
-      await db.query(`DELETE FROM shares WHERE id = $1`, [shareId]);
+    const share = result.rows[0];
 
-      console.log("🗑️ Successfully deleted share", shareId);
-      return res.json({ deleted: shareId });
-
-    } catch (err) {
-      console.error("🔥 DELETE error:", err.constructor.name, err.message);
-      return next(err);
+    if (!share) { 
+      throw new NotFoundError(`Share with ID ${shareId} not found`);
     }
-  });
+
+    if (Number(share.shared_by) !== userId && Number(share.shared_with) !== userId) {
+      throw new ForbiddenError("You do not have permission to delete this share");
+    }
+
+    await db.query(`DELETE FROM shares WHERE id = $1`, [shareId]);
+
+    return res.json({ deleted: shareId });
+
+  } catch (err) {
+    return next(err);
+  }
+});
+
   
 module.exports = router;
