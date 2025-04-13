@@ -59,6 +59,21 @@ describe("POST /song-shares", () => {
 
     expect(res.statusCode).toBe(401);
   });
+
+  test("fails with missing required fields", async () => {
+    const res = await request(app)
+      .post("/song-shares")
+      .send({
+        // missing sharedWith and/or trackId
+        playlistId: testPlaylistIds[0],
+        message: "Oops!"
+      })
+      .set("authorization", `Bearer ${testUserTokens[0]}`);
+  
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toMatch(/requires property/);
+  });  
+
 });
 
 describe("GET /song-shares/received", () => {

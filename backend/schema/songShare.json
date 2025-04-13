@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "SongShare",
+    "type": "object",
+    "required": ["sharedWith", "trackId"],
+    "properties": {
+      "sharedWith": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "playlistId": {
+        "type": ["integer", "null"]
+      },
+      "trackId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "message": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+  

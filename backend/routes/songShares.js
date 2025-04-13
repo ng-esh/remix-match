@@ -7,13 +7,15 @@
 // routes/songShares.js
 
 "use strict";
-const db = require("../db");
+const jsonschema = require('jsonschema')
 const express = require("express");
-const router = express.Router();
-
 const SongShare = require("../models/songShare");
+const router = express.Router();
+const db = require("../db");
+
 const { ensureLoggedIn } = require("../middleware/auth");
-const { NotFoundError, ForbiddenError } = require("../expressError");
+const { NotFoundError, ForbiddenError, BadRequestError } = require("../expressError");
+const songShareSchema = require("../schema/songShare.json")
 
 
 /**
@@ -29,6 +31,11 @@ const { NotFoundError, ForbiddenError } = require("../expressError");
  */
 router.post("/", ensureLoggedIn, async function (req, res, next) {
   try {
+    const validator = jsonschema.validate(req.body, songShareSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
     const sharedBy = res.locals.user.id;
     const { sharedWith, playlistId, trackId, message } = req.body;
 
