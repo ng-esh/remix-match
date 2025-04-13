@@ -158,11 +158,12 @@ describe("DELETE /users/:userId", () => {
 
 describe("GET /search?query=", () => {
   test("searches by username", async () => {
-    
     const resp = await request(app)
       .get(`/search?query=ali`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
       
+    expect(resp.statusCode).toBe(200);
+    expect(Array.isArray(resp.body.users)).toBe(true);
     expect(resp.body.users.length).toBeGreaterThan(0);
     expect(resp.body.users[0]).toHaveProperty("username");
   });

@@ -9,8 +9,7 @@
 /** Routes for users. */
 
 const express = require("express");
-const { body, validationResult } = require("express-validator");
-
+const jsonschema = require("jsonschema");
 const router = new express.Router();
 
 const User = require("../models/user");
@@ -18,6 +17,11 @@ const { createToken } = require("../helpers/tokens");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const db = require("../db");
+const userRegisterSchema = require("../schema/userRegister.json");
+const userLoginSchema = require("../schema/userLogin.json");
+const userUpdateSchema = require("../schema/userUpdate.json");
+const userSearchQuerySchema = require("../schema/userSearchQuery.json");
+
 
 /**
  * POST /auth/register
@@ -30,19 +34,14 @@ const db = require("../db");
  * Response:
  * { token }
  */
-router.post("/auth/register",
-  [
-    body("email").isEmail().withMessage("Invalid email"),
-    body("password").isLength({ min: 6 }).withMessage("Password too short"),
-    body("username").notEmpty().withMessage("Username required"),
-  ],
-  async function (req, res, next) {
+router.post("/auth/register", async function (req, res, next) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequestError(errors.array().map(e => e.msg).join(", "));
-      }
-
+      // ✅ Validate request body using JSON Schema
+      const validator = jsonschema.validate(req.body, userRegisterSchema);
+      if (!validator.valid) {
+        const errs = validator.errors.map(e => e.stack);
+        throw new BadRequestError(errs.join(", "));
+    }
       const newUser = await User.register(req.body);
       const token = createToken(newUser);
       return res.status(201).json({ token });
@@ -63,16 +62,12 @@ router.post("/auth/register",
  * Response:
  * { token }
  */
-router.post("/auth/login",
-  [
-    body("email").isEmail().withMessage("Invalid email"),
-    body("password").notEmpty().withMessage("Password required"),
-  ],
-  async function (req, res, next) {
+router.post("/auth/login", async function (req, res, next) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequestError(errors.array().map(e => e.msg).join(", "));
+      const validator = jsonschema.validate(req.body, userLoginSchema);
+      if (!validator.valid) {
+        const errs = validator.errors.map(e => e.stack);
+        throw new BadRequestError(errs.join(", "));
       }
 
       const user = await User.authenticate(req.body.email, req.body.password);
@@ -108,16 +103,16 @@ router.get("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (
  */
 router.get("/search", ensureLoggedIn, async function (req, res, next) {
   try {
-    const query = req.query.query;
-    if (!query || query.trim() === "") {
-      return res.status(400).json({ error: "Search query is required." });
+    const validator = jsonschema.validate(req.query, userSearchQuerySchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
     }
-
     const usersRes = await db.query(
       `SELECT id, username
        FROM users
        WHERE username ILIKE $1`,
-      [`%${query}%`]
+      [`%${req.query.query}%`]
     );
 
     return res.json({users: usersRes.rows});
@@ -136,12 +131,13 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
 
 router.patch("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
   try {
-    const { username } = req.body;
-    if (!username) {
-      throw new BadRequestError("Username is required to update");
+    const validator = jsonschema.validate(req.body, userUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
     }
 
-    const updated = await User.update(req.params.userId, { username });
+    const updated = await User.update(req.params.userId, req.body);
     return res.json({ user: updated });
   } catch (err) {
     return next(err);
