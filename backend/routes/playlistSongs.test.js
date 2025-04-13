@@ -50,6 +50,16 @@ describe("POST /playlist-songs/:playlistId/songs", () => {
 
     expect(res.statusCode).toBe(401);
   });
+
+  test("fails if trackId is missing", async () => {
+    const res = await request(app)
+      .post(`/playlist-songs/${testPlaylistIds[0]}/songs`)
+      .send({ position: 1 })  // no trackId
+      .set("authorization", `Bearer ${testUserTokens[0]}`);
+  
+    expect(res.statusCode).toBe(400);
+  });
+  
 });
 
 describe("DELETE /playlist-songs/:playlistId/songs/:trackId", () => {
@@ -119,5 +129,23 @@ describe("PATCH /playlist-songs/:playlistId/songs/reorder", () => {
 
     expect(res.statusCode).toBe(403);
   });
+
+  test("fails if orderedTrackIds is empty", async () => {
+    const res = await request(app)
+      .patch(`/playlist-songs/${testPlaylistIds[0]}/songs/reorder`)
+      .send({ orderedTrackIds: [] })
+      .set("authorization", `Bearer ${testUserTokens[0]}`);
+  
+    expect(res.statusCode).toBe(400);
+  });
+
+  test("rejects reorder if not logged in", async () => {
+    const res = await request(app)
+      .patch(`/playlist-songs/${testPlaylistIds[0]}/songs/reorder`)
+      .send({ orderedTrackIds: [testTrackId, testTrackId2] });
+  
+    expect(res.statusCode).toBe(401);
+  });  
+  
 });
 
