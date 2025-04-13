@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "PlaylistUpdate",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "isPublic": {
+        "type": "boolean"
+      }
+    },
+    "minProperties": 1,
+    "additionalProperties": false
+  }

@@ -9,12 +9,20 @@
 // routes/playlists.js
 "use strict";
 
+
+const jsonschema = require("jsonschema");
 const express = require("express");
 const Playlist = require("../models/playlist");
+const router = express.Router();
+
 const { ensureLoggedIn, ensurePlaylistOwner, authenticateJWT } = require("../middleware/auth");
 const { BadRequestError, ForbiddenError } = require("../expressError");
+const playlistCreateSchema = require("../schema/playlistCreate.json");
+const playlistUpdateSchema = require("../schema/playlistUpdate.json");
+const playlistVisibilityUpdateSchema = require("../schema/playlistVisibilityUpdate.json");
+const playlistSearchQuerySchema = require("../schema/playlistSearchQuery.json");
 
-const router = express.Router();
+
 
 /**
  * GET / => { playlists }
@@ -47,7 +55,11 @@ router.get("/", ensureLoggedIn, async function (req, res, next) {
 router.get("/search", ensureLoggedIn, async function (req, res, next) {
   try {
     const { name } = req.query;
-    if (!name) throw new BadRequestError("Search term 'name' is required.");
+    const validator = jsonschema.validate(req.query, playlistSearchQuerySchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
     const playlists = await Playlist.getByName(name);
     return res.json({ playlists });
   } catch (err) {
@@ -109,9 +121,12 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
     const { name, isPublic } = req.body;
     const userId = res.locals.user?.id;
 
-    if (!name || typeof isPublic !== "boolean") {
-      return res.status(400).json({ error: "Missing required fields." });
+    const validator = jsonschema.validate(req.body, playlistCreateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
     }
+    
 
     const playlist = await Playlist.create({ userId, name, isPublic });
     return res.status(201).json({ playlist });
@@ -136,14 +151,12 @@ router.patch("/:id", ensureLoggedIn, ensurePlaylistOwner, async function (req, r
     const userId = res.locals.user.id;
     const { name, isPublic } = req.body;
 
-    // ✅ Validation to ensure at least one field is being updated
-    if (name === undefined && isPublic === undefined) {
-      throw new BadRequestError("Must include name or isPublic to update.");
+    const validator = jsonschema.validate(req.body, playlistUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
     }
-
     const updated = await Playlist.update(req.params.id, userId, { name, isPublic });
-    
-
     return res.json({
       playlist: {
         id: updated.id,
@@ -171,8 +184,19 @@ router.patch("/:id/visibility", ensureLoggedIn, ensurePlaylistOwner, async funct
   try {
     const userId = res.locals.user.id;
     const { isPublic } = req.body;
+
+    const validator = jsonschema.validate(req.body, playlistVisibilityUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
     const playlist = await Playlist.update(req.params.id, userId, { isPublic });
-    return res.json({ playlist });
+    return res.json({ playlist:{
+      id: playlist.id,
+      name: playlist.name,
+      userId: playlist.user_id,
+      isPublic: playlist.is_public
+    } });
   } catch (err) {
     return next(err);
   }

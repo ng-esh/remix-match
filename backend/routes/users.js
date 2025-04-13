@@ -7,12 +7,11 @@
 "use strict";
 
 /** Routes for users. */
-
-const express = require("express");
 const jsonschema = require("jsonschema");
+const express = require("express");
+const User = require("../models/user");
 const router = new express.Router();
 
-const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");

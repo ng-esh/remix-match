@@ -210,3 +210,45 @@ describe("DELETE /playlists/:id", () => {
     expect(res.statusCode).toBe(404);
   });
 });
+
+describe("PATCH /playlists/:id/visibility", () => {
+  test("successfully updates visibility", async () => {
+    const res = await request(app)
+      .patch(`/playlists/${testPlaylistId}/visibility`)
+      .send({ isPublic: false })
+      .set("authorization", `Bearer ${userToken}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.playlist.isPublic).toBe(false);
+  });
+
+  test("fails with missing isPublic", async () => {
+    const res = await request(app)
+      .patch(`/playlists/${testPlaylistId}/visibility`)
+      .send({})
+      .set("authorization", `Bearer ${userToken}`);
+      
+    expect(res.statusCode).toBe(400);
+  });
+});
+
+describe("GET /playlists/search", () => {
+  test("successfully searches by name", async () => {
+    const res = await request(app)
+      .get("/playlists/search?name=Test")
+      .set("authorization", `Bearer ${userToken}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body.playlists)).toBe(true);
+    expect(res.body.playlists.length).toBeGreaterThan(0);
+  });
+
+  test("fails with missing name param", async () => {
+    const res = await request(app)
+      .get("/playlists/search")
+      .set("authorization", `Bearer ${userToken}`);
+
+    expect(res.statusCode).toBe(400);
+  });
+});
+

@@ -155,7 +155,6 @@ describe("DELETE /users/:userId", () => {
 });
 
 
-
 describe("GET /search?query=", () => {
   test("searches by username", async () => {
     const resp = await request(app)
@@ -177,3 +176,4 @@ describe("GET /search?query=", () => {
       expect(resp.statusCode).toBe(400);
   });
 });
+

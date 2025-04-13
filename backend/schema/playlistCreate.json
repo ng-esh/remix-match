@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "PlaylistCreate",
+    "type": "object",
+    "required": ["name", "isPublic"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "isPublic": {
+        "type": "boolean"
+      }
+    },
+    "additionalProperties": false
+  }
