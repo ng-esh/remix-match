@@ -54,6 +54,39 @@ afterAll(async () => {
   
       expect(res.statusCode).toBe(403);
     });
+    
+    test("fails with missing required fields", async () => {
+      const res = await request(app)
+        .post("/playlist-shares")
+        .send({ playlistId: testPlaylistIds[0], fromUserId: testUserIds[0] }) // missing toUserId
+        .set("authorization", `Bearer ${testUserTokens[0]}`);
+  
+      expect(res.statusCode).toBe(400);
+    });
+    
+    test("fails if playlist already shared with user", async () => {
+      // first share
+      await request(app)
+        .post("/playlist-shares")
+        .send({
+          playlistId: testPlaylistIds[0],
+          fromUserId: testUserIds[0],
+          toUserId: testUserIds[1]
+        })
+        .set("authorization", `Bearer ${testUserTokens[0]}`);
+    
+      // try sharing again
+      const res = await request(app)
+        .post("/playlist-shares")
+        .send({
+          playlistId: testPlaylistIds[0],
+          fromUserId: testUserIds[0],
+          toUserId: testUserIds[1]
+        })
+        .set("authorization", `Bearer ${testUserTokens[0]}`);
+      expect(res.statusCode).toBe(400);
+    });
+    
   });
   
   describe("GET /playlist-shares/:playlistId/users", () => {
@@ -156,4 +189,13 @@ afterAll(async () => {
   
       expect(res.statusCode).toBe(403);
     });
+
+    test("fails with invalid share ID", async () => {
+      const res = await request(app)
+        .delete("/playlist-shares/0")
+        .set("authorization", `Bearer ${testUserTokens[0]}`);
+    
+      expect(res.statusCode).toBe(404);
+    });
+    
   });

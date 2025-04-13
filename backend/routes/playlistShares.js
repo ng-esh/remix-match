@@ -15,7 +15,7 @@ const router = new express.Router();
 const { ensureLoggedIn } = require("../middleware/auth");
 const Share = require("../models/playlistShare");
 const db = require("../db");
-const { NotFoundError, ForbiddenError } = require("../expressError");
+const { NotFoundError, ForbiddenError, BadRequestError } = require("../expressError");
 const playlistShareSchema = require("../schema/playlistShare.json");
 
 /**
@@ -34,16 +34,17 @@ const playlistShareSchema = require("../schema/playlistShare.json");
  */
 router.post("/", ensureLoggedIn, async function (req, res, next) {
   try {
-    const { playlistId, fromUserId, toUserId } = req.body;
-
     const validator = jsonschema.validate(req.body, playlistShareSchema);
-    if (!validator.valid) {
+    if (!validator.valid) { 
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs.join(", "));
     }
+    const { playlistId, fromUserId, toUserId } = req.body;
+
     if (Number(res.locals.user.id) !== Number(fromUserId)) {
       throw new ForbiddenError("Cannot share on behalf of another user");
     }
+
     const shared = await Share.sharePlaylist({ playlistId, fromUserId, toUserId });
     return res.status(201).json({ shared });
   } catch (err) {
