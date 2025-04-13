@@ -8,6 +8,7 @@
 
 "use strict";
 
+const jsonschema = require("jsonschema");
 const express = require("express");
 const router = new express.Router();
 
@@ -15,6 +16,7 @@ const { ensureLoggedIn } = require("../middleware/auth");
 const Share = require("../models/playlistShare");
 const db = require("../db");
 const { NotFoundError, ForbiddenError } = require("../expressError");
+const playlistShareSchema = require("../schema/playlistShare.json");
 
 /**
  * POST /share
@@ -34,10 +36,14 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   try {
     const { playlistId, fromUserId, toUserId } = req.body;
 
-    if (res.locals.user.id !== fromUserId) {
+    const validator = jsonschema.validate(req.body, playlistShareSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
+    if (Number(res.locals.user.id) !== Number(fromUserId)) {
       throw new ForbiddenError("Cannot share on behalf of another user");
     }
-
     const shared = await Share.sharePlaylist({ playlistId, fromUserId, toUserId });
     return res.status(201).json({ shared });
   } catch (err) {

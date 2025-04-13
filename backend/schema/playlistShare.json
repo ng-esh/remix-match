@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "PlaylistShare",
+    "type": "object",
+    "required": ["playlistId", "fromUserId", "toUserId"],
+    "properties": {
+      "playlistId": { "type": "integer", "minimum": 1 },
+      "fromUserId": { "type": "integer", "minimum": 1 },
+      "toUserId": { "type": "integer", "minimum": 1 }
+    },
+    "additionalProperties": false
+  }
+  
