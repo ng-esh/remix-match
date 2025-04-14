@@ -50,7 +50,7 @@ describe("POST /lives/create", () => {
       .send({
         sessionName: "Party Time",
         sourceType: "playlist",
-        sourceId: testPlaylistIds[0],
+        sourceId: "abc123",
         isPublic: true
       })
       .set("authorization", `Bearer ${testUserTokens[0]}`);
@@ -76,6 +76,23 @@ describe("POST /lives/create", () => {
     expect(res.statusCode).toBe(401);
     expect(res.body.error).toMatch(/logged in/i);
   });
+
+  test("fails with missing required fields", async () => {
+    const res = await request(app)
+      .post("/lives/create")
+      .send({
+        // Missing sourceId
+        sessionName: "Oops Session",
+        sourceType: "playlist"
+      })
+      .set("authorization", `Bearer ${testUserTokens[0]}`);
+  
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toMatch(/sourceId/);
+  });
+  
+
+
 });
 
 describe("POST /lives/:sessionId/invite-token", () => {
@@ -124,11 +141,13 @@ describe("POST /lives/:sessionId/join", () => {
       .send({
         sessionName: "Private Jam",
         sourceType: "playlist",
-        sourceId: testPlaylistIds[0],
+        sourceId: String(testPlaylistIds[0]),
         isPublic: false
       })
       .set("authorization", `Bearer ${testUserTokens[0]}`);
 
+    expect(privateSessionRes.statusCode).toBe(201);  
+    expect(privateSessionRes.body.session).toBeDefined();
     const privateId = privateSessionRes.body.session.id;
 
     const res = await request(app)

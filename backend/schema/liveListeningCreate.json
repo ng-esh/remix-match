@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "LiveListeningCreate",
+    "type": "object",
+    "required": ["sessionName", "sourceType", "sourceId"],
+    "properties": {
+      "sessionName": {
+        "type": "string",
+        "minLength": 1
+      },
+      "sourceType": {
+        "type": "string",
+        "enum": ["playlist", "track", "album"]
+      },
+      "sourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "isPublic": {
+        "type": "boolean"
+      }
+    },
+    "additionalProperties": false
+  }
+  

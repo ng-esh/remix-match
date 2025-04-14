@@ -10,13 +10,16 @@
 // routes/liveListening.js
 "use strict";
 
+const jsonschema = require("jsonschema");
 const express = require("express");
+const LiveListening = require("../models/liveListening");
 const router = new express.Router();
 const jwt = require("jsonwebtoken");
+
 const { ensureLoggedIn } = require("../middleware/auth");
-const LiveListening = require("../models/liveListening");
 const { SECRET_KEY } = require("../config");
 const { BadRequestError, ForbiddenError } = require("../expressError");
+const liveListeningCreateSchema = require("../schema/liveListeningCreate.json");
 
 /** POST /live/create
  * Host creates a new session.
@@ -25,6 +28,12 @@ const { BadRequestError, ForbiddenError } = require("../expressError");
  */
 router.post("/create", ensureLoggedIn, async function (req, res, next) {
   try {
+    const validator = jsonschema.validate(req.body, liveListeningCreateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
+
     const payload = {
       hostId: res.locals.user.id,
       sessionName: req.body.sessionName,
