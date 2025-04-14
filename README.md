@@ -25,7 +25,6 @@ Spotify Api: https://developer.spotify.com/documentation/web-api?ref=apilist.fun
 
 
 ## RemixMatch Backend Test Coverage Summary
-
 ✅ Test Coverage Overview
 Your backend has complete and comprehensive test coverage across all route files, including validation, authentication, authorization, edge cases, and business logic. Below is a route-by-route breakdown.
 
