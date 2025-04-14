@@ -5,12 +5,14 @@
  
 // routes/votes.js
 "use strict";
-
+const jsonschema = require("jsonschema");
 const express = require("express");
-const router = new express.Router();
-const { ensureLoggedIn } = require("../middleware/auth");
 const Vote = require("../models/vote");
+const router = new express.Router();
+
+const { ensureLoggedIn } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
+const voteCastSchema = require("../schema/voteCast.json");
 
 
 /** POST /votes/:playlistId
@@ -20,6 +22,11 @@ const { BadRequestError } = require("../expressError");
  */
 router.post("/:playlistId", ensureLoggedIn, async function (req, res, next) {
   try {
+    const validator = jsonschema.validate(req.body, voteCastSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
     const voteType = req.body.voteType;
     const userId = res.locals.user.id;
     const playlistId = +req.params.playlistId;

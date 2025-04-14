@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "VoteCast",
+    "type": "object",
+    "required": ["voteType"],
+    "properties": {
+      "voteType": {
+        "type": "integer",
+        "enum": [1, -1]
+      }
+    },
+    "additionalProperties": false
+  }
+  
