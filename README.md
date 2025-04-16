@@ -19,7 +19,7 @@ Let’s give you an example of what a site could look like. Say you want to make
 5.Make sure you use a free API or create your own API and deploy your project on Heroku, so everyone can see your work!
 
 
-
+n
 ## API
 Spotify Api: https://developer.spotify.com/documentation/web-api?ref=apilist.fun
 
@@ -81,10 +81,21 @@ Schema validation for voteType (1, -1)
 Handles: multiple vote changes, invalid values, and expired tokens
 Full coverage ✅
 
+🎶 Spotify Search (routes/spotify.js)
+Search Spotify for tracks using query string
+Schema validation for q param
+Handles:
+- Missing query param (400)
+- Unauthorized token request (401)
+- Spotify rate limiting (429)
+- Unexpected failures (500)
+- Mocked token and track responses in tests
+- Edge cases and response structure fully covered
+Full coverage ✅
+
 🧪 Summary
-Total Routes: 70+ endpoints
-Total Test Suites: 12
-Schema-validated Routes: 14
+Total Routes: 100+ endpoints
+Total Test Suites: 17
 Authentication / Permission Logic Tested: ✅
 Expired/Invalid Token Handling: ✅
 CRUD + Edge Case Coverage: ✅
