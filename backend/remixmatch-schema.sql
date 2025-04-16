@@ -4,6 +4,7 @@
 DROP TABLE IF EXISTS live_session_users;
 DROP TABLE IF EXISTS live_sessions;
 DROP TABLE IF EXISTS votes;
+DROP TABLE IF EXISTS shares; 
 DROP TABLE IF EXISTS shared_playlists;
 DROP TABLE IF EXISTS playlist_songs;
 DROP TABLE IF EXISTS playlists;

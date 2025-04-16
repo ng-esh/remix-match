@@ -8,6 +8,10 @@ require("colors");
 /** SECRET_KEY: Used for JWTs or session signing */
 const SECRET_KEY = process.env.SECRET_KEY || "remixmatch-secret";
 
+/** SPOTIFY CLIENT & CLIENT SECRET: allows my backend to tequest an access token from Spotify */
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+
 /** PORT: App server port */
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 
@@ -31,6 +35,8 @@ console.log("---");
 
 module.exports = {
   SECRET_KEY,
+  SPOTIFY_CLIENT_ID,
+  SPOTIFY_CLIENT_SECRET,
   PORT,
   BCRYPT_WORK_FACTOR,
   getDatabaseUri,
