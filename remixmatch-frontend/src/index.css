@@ -1,7 +1,0 @@
-@config {
-  content: ["./index.html", "./src/**/*.{js,jsx}"];
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
