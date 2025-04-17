@@ -1,0 +1,23 @@
+/**
+ * AppRoutes
+ * 
+ * Defines the main application routes using React Router v6.
+ */
+
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+    </Routes>
+  );
+}
+
+export default AppRoutes;
