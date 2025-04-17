@@ -21,49 +21,6 @@ afterAll(async () => {
   await dbTeardown(db);
 });
 
-
-
-describe("POST /users/auth/register", () => {
-  test("registers a new user", async () => {
-    const resp = await request(app)
-      .post("/auth/register")
-      .send({
-        username: "newuser",
-        email: "new@user.com",
-        password: "password123"
-      });
-
-    expect(resp.statusCode).toBe(201);
-    expect(resp.body).toHaveProperty("token");
-  });
-
-  test("fails with missing fields", async () => {
-    const resp = await request(app)
-      .post("/auth/register")
-      .send({ email: "bad", password: "123" });
-
-    expect(resp.statusCode).toBe(400);
-  });
-});
-
-describe("POST /users/auth/login", () => {
-  test("logs in with correct credentials", async () => {
-    const resp = await request(app)
-      .post("/auth/login")
-      .send({ email: "alice@example.com", password: "password1" });
-
-    expect(resp.body).toHaveProperty("token");
-  });
-
-  test("fails with bad credentials", async () => {
-    const resp = await request(app)
-      .post("/auth/login")
-      .send({ email: "alice@example.com", password: "nope" });
-
-    expect(resp.statusCode).toBe(401);
-  });
-});
-
 describe("GET /users/:userId", () => {
   test("gets user info if correct user", async () => {
     const resp = await request(app)

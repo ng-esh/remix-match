@@ -16,67 +16,10 @@ const { createToken } = require("../helpers/tokens");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const db = require("../db");
-const userRegisterSchema = require("../schema/userRegister.json");
-const userLoginSchema = require("../schema/userLogin.json");
 const userUpdateSchema = require("../schema/userUpdate.json");
 const userSearchQuerySchema = require("../schema/userSearchQuery.json");
 
 
-/**
- * POST /auth/register
- * 
- * Registers a new user and returns a signed JWT.
- * 
- * Request body:
- * { email, password, username }
- * 
- * Response:
- * { token }
- */
-router.post("/auth/register", async function (req, res, next) {
-    try {
-      // ✅ Validate request body using JSON Schema
-      const validator = jsonschema.validate(req.body, userRegisterSchema);
-      if (!validator.valid) {
-        const errs = validator.errors.map(e => e.stack);
-        throw new BadRequestError(errs.join(", "));
-    }
-      const newUser = await User.register(req.body);
-      const token = createToken(newUser);
-      return res.status(201).json({ token });
-    } catch (err) {
-      return next(err);
-    }
-  }
-);
-
-/**
- * POST /auth/login
- * 
- * Authenticates a user and returns a signed JWT.
- * 
- * Request body:
- * { email, password }
- * 
- * Response:
- * { token }
- */
-router.post("/auth/login", async function (req, res, next) {
-    try {
-      const validator = jsonschema.validate(req.body, userLoginSchema);
-      if (!validator.valid) {
-        const errs = validator.errors.map(e => e.stack);
-        throw new BadRequestError(errs.join(", "));
-      }
-
-      const user = await User.authenticate(req.body.email, req.body.password);
-      const token = createToken(user);
-      return res.json({ token });
-    } catch (err) {
-      return next(err);
-    }
-  }
-);
 
 /**
  * GET /users/:userId

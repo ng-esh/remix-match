@@ -17,6 +17,8 @@ const songShareRoutes = require ("./routes/songShares");
 const voteRoutes = require ("./routes/votes");
 const liveListeningRoutes = require ("./routes/liveListenings");
 const spotifyRoutes = require("./routes/spotify");
+const authRoutes = require("./routes/auth");
+
 
 
 app.use(morgan('dev'));
@@ -32,6 +34,8 @@ app.use("/song-shares", songShareRoutes);
 app.use("/votes", voteRoutes);
 app.use("/lives", liveListeningRoutes);
 app.use("/spotify", spotifyRoutes);
+app.use("/auth", authRoutes);
+
 
 
 
