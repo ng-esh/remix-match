@@ -10,8 +10,8 @@
  * - Keeps API logic separate from frontend UI logic.
  */
 
-import axios from "axios";
 
+import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 class RemixMatchApi {
@@ -46,24 +46,26 @@ class RemixMatchApi {
    *  ===================== */
 
   /** Log in with email & password -> returns token */
-  static async login({ username, password }) {
-    const res = await this.request("auth/token", { username, password }, "post");
+  static async login({ email, password }) {
+    const res = await this.request("auth/login", { email, password }, "post");
     return res.token;
   }
 
-  /** Register with user data -> returns token */
+  /** Register new user with userData -> returns token */
   static async register(userData) {
+    // userData should include: username, email, password, firstName, lastName
     const res = await this.request("auth/register", userData, "post");
     return res.token;
   }
 
-  /** Get current user profile by username */
+  /** Get current user profile by username (if implemented) */
   static async getCurrentUser(username) {
     const res = await this.request(`users/username/${username}`);
     return res.user;
   }
 
-  // You’ll add playlist/song/share/etc. methods here later
+  // More playlist/song/share methods can go here
 }
 
 export default RemixMatchApi;
+

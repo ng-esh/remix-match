@@ -5,10 +5,15 @@
  * Renders a login form and handles login logic.
  */
 
-import React, { useState } from "react";
+import React, { useState, UseContext } from "react";
 import RemixMatchApi from "../api/RemixMatchApi";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useContext(UserContext);
+
   const initialState = { username: "", password: "" };
   const [formData, setFormData] = useState(initialState);
   const [formError, setFormError] = useState(null);
@@ -26,10 +31,8 @@ function LoginPage() {
     setIsLoading(true);
     setFormError(null);
     try {
-      const token = await RemixMatchApi.login(formData);
-      RemixMatchApi.setToken(token); // 🔐 Set token globally
-      console.log("Logged in!", token);
-      // TODO: update global login state & redirect to feed
+      await login(formData); // 🔄 use context login function
+      navigate("/");         // ✅ redirect on success (optional)
     } catch (err) {
       setFormError(err);
     } finally {
@@ -53,17 +56,17 @@ function LoginPage() {
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              name="username"
-              type="text"
-              value={formData.username}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-            </div>
+            Username
+          </label>
+          <input
+            name="username"
+            type="text"
+            value={formData.username}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            required
+          />
+        </div>
 
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700">
