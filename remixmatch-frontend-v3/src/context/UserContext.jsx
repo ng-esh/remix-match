@@ -52,7 +52,9 @@ function UserProvider({ children }) {
 
   const value = { currentUser, login, logout };
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) {
+    return <p>Loading...</p> ;
+  }
 
   return (
     <UserContext.Provider value={value}>
