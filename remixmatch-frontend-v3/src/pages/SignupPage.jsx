@@ -4,10 +4,10 @@
  * Renders a signup form for new users.
  */
 
-
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import "../styles/SignupPage.css";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -45,31 +45,26 @@ function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg p-8 max-w-md w-full"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+    <div className="signup-container">
+      <form onSubmit={handleSubmit} className="signup-form">
+        <h2 className="signup-title">Sign Up</h2>
 
         {formError && (
-          <div className="bg-red-100 text-red-800 p-2 rounded mb-4">
+          <div className="signup-error">
             {formError.join(", ")}
           </div>
         )}
 
         {["email", "username", "firstName", "lastName", "password"].map(field => (
           <div className="mb-4" key={field}>
-            <label className="block text-sm font-medium text-gray-700 capitalize">
-              {field}
-            </label>
+            <label className="signup-label">{field}</label>
             <input
               name={field}
               type={field === "password" ? "password" : "text"}
               value={formData[field]}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="signup-input"
             />
           </div>
         ))}
@@ -77,7 +72,7 @@ function SignupPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition"
+          className="signup-button"
         >
           {isLoading ? "Signing up..." : "Sign Up"}
         </button>
@@ -87,4 +82,3 @@ function SignupPage() {
 }
 
 export default SignupPage;
-
