@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext } from "react";
 import RemixMatchApi from "../api/RemixMatchApi";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 /** UserContext
  *
@@ -21,7 +21,7 @@ function UserProvider({ children }) {
     async function loadUser() {
       if (token) {
         try {
-          const { username } = jwt_decode(token);
+          const { username } = jwtDecode(token);
           RemixMatchApi.setToken(token);
           const user = await RemixMatchApi.getCurrentUser(username);
           setCurrentUser(user);

@@ -1,0 +1,98 @@
+/* HomePage.css
+ *
+ * Styles for the HomePage component
+ */
+
+ .home-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to bottom, #4f46e5, #8b5cf6, #ec4899);
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .home-title {
+    font-size: 3rem; /* text-5xl */
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.75;
+    }
+  }
+  
+  .home-greeting {
+    font-size: 1.25rem; /* text-xl */
+    margin-bottom: 1rem;
+  }
+  
+  .home-description {
+    font-size: 1.125rem; /* text-lg */
+    max-width: 36rem; /* max-w-xl */
+    margin-bottom: 2.5rem;
+  }
+  
+  .home-cta-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .home-button {
+    background-color: white;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+    text-decoration: none;
+  }
+  
+  .login-button {
+    color: #4f46e5;
+  }
+  
+  .signup-button {
+    color: #ec4899;
+  }
+  
+  .home-button:hover {
+    background-color: #f3f4f6;
+  }
+ 
+  .home-animation {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .home-lottie-wrapper {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px; /* full circle */
+    padding: 1.5rem;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3),
+                0 0 60px rgba(236, 72, 153, 0.3);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .home-lottie-wrapper:hover {
+    transform: scale(1.05);
+  }
+  
+  .home-lottie {
+    width: 200px;
+    height: 200px;
+  }
+  
