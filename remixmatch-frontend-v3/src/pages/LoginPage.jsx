@@ -1,4 +1,3 @@
-
 /**
  * LoginPage Component
  * 
@@ -6,9 +5,10 @@
  */
 
 import React, { useState, useContext } from "react";
-import RemixMatchApi from "../api/RemixMatchApi";
 import { useNavigate } from "react-router-dom";
+import RemixMatchApi from "../api/RemixMatchApi";
 import { UserContext } from "../context/UserContext";
+import "../styles/LoginPage.css";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -41,43 +41,36 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg p-8 max-w-md w-full"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Log In</h2>
+    <div className="login-container">
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2 className="login-title">Log In</h2>
 
         {formError && (
-          <div className="bg-red-100 text-red-800 p-2 rounded mb-4">
+          <div className="login-error">
             {formError.join(", ")}
           </div>
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Username
-          </label>
+          <label className="login-label">Username</label>
           <input
             name="username"
             type="text"
             value={formData.username}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="login-input"
             required
           />
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
+          <label className="login-label">Password</label>
           <input
             name="password"
             type="password"
             value={formData.password}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="login-input"
             required
           />
         </div>
@@ -85,7 +78,7 @@ function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition"
+          className="login-button"
         >
           {isLoading ? "Logging in..." : "Log In"}
         </button>
@@ -93,6 +86,5 @@ function LoginPage() {
     </div>
   );
 }
-
 
 export default LoginPage;
