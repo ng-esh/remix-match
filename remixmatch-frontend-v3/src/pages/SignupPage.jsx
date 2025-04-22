@@ -36,7 +36,7 @@ function SignupPage() {
     setFormError(null);
     try {
       await login(formData); // Uses context login, which includes register logic
-      navigate("/");
+      navigate("/feed");
     } catch (err) {
       setFormError(err);
     } finally {

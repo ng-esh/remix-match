@@ -32,7 +32,7 @@ function LoginPage() {
     setFormError(null);
     try {
       await login(formData); // 🔄 use context login function
-      navigate("/");         // ✅ redirect on success (optional)
+      navigate("/feed");         // ✅ redirect on success (optional)
     } catch (err) {
       setFormError(err);
     } finally {
