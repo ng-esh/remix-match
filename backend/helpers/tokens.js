@@ -7,15 +7,17 @@ const { SECRET_KEY } = require("../config");
  * @returns {string} Signed JWT.
  */
 function createToken(user) {
-    // Sign the entire user object (excluding password)
-    const payload = {
-      id: user.id,
-      username : user.username,
-      email: user.email,
-      ...(user.isAdmin !== undefined && { isAdmin: user.isAdmin })
-    };
-  
-    return jwt.sign(payload, SECRET_KEY);
-  }
+  const payload = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    ...(user.isAdmin !== undefined && { isAdmin: user.isAdmin })
+  };
+
+  return jwt.sign(payload, SECRET_KEY);
+}
+
   
   module.exports = { createToken };

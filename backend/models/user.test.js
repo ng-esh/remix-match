@@ -18,19 +18,22 @@ beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 
-
 describe("User.register", function () {
   test("successfully registers new user", async function () {
     const newUser = await User.register({
       username: "newbie",
       email: "newbie@test.com",
-      password: "supersecret"
+      password: "supersecret",
+      firstName: "New",
+      lastName: "User"
     });
 
     expect(newUser).toEqual(
       expect.objectContaining({
         username: "newbie",
         email: "newbie@test.com",
+        firstName: "New",
+        lastName: "User"
       })
     );
     expect(newUser).toHaveProperty("id");
@@ -41,7 +44,9 @@ describe("User.register", function () {
     await expect(User.register({
       username: "user1", // already seeded
       email: "unique@test.com",
-      password: "password"
+      password: "password",
+      firstName: "Dupe",
+      lastName: "Name"
     })).rejects.toThrow(BadRequestError);
   });
 
@@ -49,10 +54,14 @@ describe("User.register", function () {
     await expect(User.register({
       username: "uniqueuser",
       email: "user1@test.com", // already seeded
-      password: "password"
+      password: "password",
+      firstName: "Dupe",
+      lastName: "Email"
     })).rejects.toThrow(BadRequestError);
   });
 });
+
+
 
 describe("User.authenticate", function () {
   test("authenticates valid user", async function () {

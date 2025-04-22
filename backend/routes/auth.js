@@ -27,6 +27,7 @@ router.post("/register", async function (req, res, next) {
     const token = createToken(newUser);
     return res.status(201).json({ token });
   } catch (err) {
+    console.error("REGISTER ERROR:", err); // 👈 ADD THIS
     return next(err);
   }
 });
@@ -36,7 +37,7 @@ router.post("/register", async function (req, res, next) {
  * 
  * Authenticates a user and returns a signed JWT.
  */
-router.post("/token", async function (req, res, next) {
+router.post("/login", async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, userLoginSchema);
     if (!validator.valid) {

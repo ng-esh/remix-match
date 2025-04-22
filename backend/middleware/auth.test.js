@@ -24,12 +24,11 @@ let req, res, next;
 beforeAll(async function () {
   await db.query("DELETE FROM users");
   await db.query(`
-    INSERT INTO users (id, username, password, email)
-    VALUES 
-      (1, 'user1', 'password1', 'user1@example.com'),
-      (2, 'user2', 'password2', 'user2@example.com')
-    ON CONFLICT DO NOTHING
-  `);
+  INSERT INTO users (id, username, password, email, first_name, last_name)
+  VALUES 
+    (1, 'user1', 'password1', 'user1@example.com', 'User', 'One'),
+    (2, 'user2', 'password2', 'user2@example.com', 'User', 'Two')
+`);
 });
 
 beforeEach(() => {

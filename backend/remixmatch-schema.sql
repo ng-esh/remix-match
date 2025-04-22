@@ -15,7 +15,9 @@ CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
-  email TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -77,6 +79,7 @@ CREATE TABLE live_sessions (
   source_type TEXT NOT NULL CHECK (source_type IN ('playlist', 'track', 'album')),
   source_id TEXT NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
+  is_public BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

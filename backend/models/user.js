@@ -14,14 +14,14 @@ class User {
   /**
    * Register a new user with email, username, and hashed password.
    *
-   * @param {Object} userData - Object containing email, password, and username.
+   * @param {Object} userData - Object containing email, password, username, first name and last name.
    * @returns {Object} - New user data (id, email, username, created_at).
    * @throws {BadRequestError} - If required fields are missing.
    */
   
-    static async register({ email, password, username }) {
-      if (!email || !password || !username) {
-      throw new BadRequestError("Email, password, and username are required");
+    static async register({ email, password, username, firstName, lastName }) {
+      if (!email || !password || !username || !firstName ||!lastName) {
+      throw new BadRequestError("Email, password, username, first name, and last name are required");
     }
     
       // Step 1: Manually check for duplicate username/email before inserting
@@ -45,10 +45,10 @@ class User {
         try {
         // Step 2: Insert new user into the database
         const result = await db.query(
-            `INSERT INTO users (email, password, username)
-            VALUES ($1, $2, $3)
-            RETURNING id, email, username, created_at`,
-            [email, hashedPassword, username]
+           `INSERT INTO users (email, password, username, first_name, last_name)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, email, username, first_name AS "firstName", last_name AS "lastName", created_at`,
+            [email, hashedPassword, username, firstName, lastName]
         );
     
         return result.rows[0];

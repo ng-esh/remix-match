@@ -22,10 +22,11 @@ async function commonBeforeAll() {
   const hashedPw2 = await bcrypt.hash("password2", BCRYPT_WORK_FACTOR);
 
   const result = await db.query(
-    `INSERT INTO users (username, password, email)
-     VALUES ('user1', $1, 'user1@test.com'),
-            ('user2', $2, 'user2@test.com')
-     RETURNING id`,
+    `INSERT INTO users (username, password, email, first_name, last_name)
+    VALUES 
+    ('user1', $1, 'user1@test.com', 'User', 'One'),
+    ('user2', $2, 'user2@test.com', 'User', 'Two')
+    RETURNING id`,
     [hashedPw1, hashedPw2]
   );
 

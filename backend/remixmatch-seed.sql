@@ -1,9 +1,9 @@
 
--- Insert users
-INSERT INTO users (username, password, email)
+INSERT INTO users (username, password, email, first_name, last_name)
 VALUES
-  ('alice', 'password1', 'alice@example.com'),
-  ('bob', 'password2', 'bob@example.com');
+  ('alice', 'password1', 'alice@example.com', 'Alice', 'Anderson'),
+  ('bob', 'password2', 'bob@example.com', 'Bob', 'Brown');
+
 
 -- Insert playlists
 INSERT INTO playlists (user_id, name, is_public)

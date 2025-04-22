@@ -11,11 +11,16 @@ const { createToken } = require("../helpers/tokens");
 const testUserData = {
   username: "testuser",
   email: "test@example.com",
-  password: "password123"
+  password: "password123",
+  firstName: "Test",
+  lastName: "User"
 };
 
 beforeAll(async () => {
   await db.query("DELETE FROM users");
+
+  // Register user directly to be able to test login
+  await request(app).post("/auth/register").send(testUserData);
 });
 
 afterAll(async () => {
@@ -24,7 +29,13 @@ afterAll(async () => {
 
 describe("POST /auth/register", function () {
   test("successfully registers a new user and returns a token", async function () {
-    const res = await request(app).post("/auth/register").send(testUserData);
+    const res = await request(app).post("/auth/register").send({
+      username: "newuser",
+      email: "newuser@example.com",
+      password: "password123",
+      firstName: "New",
+      lastName: "User"
+    });
     expect(res.statusCode).toBe(201);
     expect(res.body).toEqual({
       token: expect.any(String),
@@ -39,9 +50,9 @@ describe("POST /auth/register", function () {
   });
 });
 
-describe("POST /auth/token", function () {
+describe("POST /auth/login", function () {
   test("successfully logs in with correct credentials", async function () {
-    const res = await request(app).post("/auth/token").send({
+    const res = await request(app).post("/auth/login").send({
       email: testUserData.email,
       password: testUserData.password,
     });
@@ -52,7 +63,7 @@ describe("POST /auth/token", function () {
   });
 
   test("fails with incorrect credentials", async function () {
-    const res = await request(app).post("/auth/token").send({
+    const res = await request(app).post("/auth/login").send({
       email: testUserData.email,
       password: "wrongpassword",
     });
