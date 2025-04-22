@@ -27,7 +27,6 @@ router.post("/register", async function (req, res, next) {
     const token = createToken(newUser);
     return res.status(201).json({ token });
   } catch (err) {
-    console.error("REGISTER ERROR:", err); // 👈 ADD THIS
     return next(err);
   }
 });
@@ -45,7 +44,7 @@ router.post("/login", async function (req, res, next) {
       throw new BadRequestError(errs.join(", "));
     }
 
-    const user = await User.authenticate(req.body.email, req.body.password);
+    const user = await User.authenticate(req.body.username, req.body.password);
     const token = createToken(user);
     return res.json({ token });
   } catch (err) {

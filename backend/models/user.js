@@ -67,42 +67,43 @@ class User {
         }
     }
   
+    /**
+    * Authenticate a user by username and password.
+    *
+    * @param {string} username - The user's username.
+    * @param {string} password - The plain text password to validate.
+    * @returns {Object} - User data if valid.
+    * @throws {NotFoundError} - If no user exists with the given username.
+    * @throws {UnauthorizedError} - If password is incorrect.
+    */
+    static async authenticate(username, password) {
+      if (!username || !password) {
+        throw new BadRequestError("Username and password are required");
+      }
 
-  /**
-   * Authenticate a user by email and password.
-   *
-   * @param {string} email - The user's email address.
-   * @param {string} password - The plain text password to validate.
-   * @returns {Object} - User data if valid.
-   * @throws {NotFoundError} - If no user exists with the given email.
-   * @throws {UnauthorizedError} - If password is incorrect.
-   */
-  static async authenticate(email, password) {
-    if (!email || !password) {
-      throw new BadRequestError("Email and password are required");
+      const result = await db.query(
+        `SELECT id, email, password, username, first_name AS "firstName", last_name AS "lastName", created_at
+        FROM users
+        WHERE username = $1`,
+        [username]
+      );
+
+      const user = result.rows[0];
+
+      if (!user) {
+        throw new NotFoundError("User not found with this username");
+      }
+
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        throw new UnauthorizedError("Invalid credentials");
+      }
+
+      delete user.password;
+      return user;
     }
 
-    const result = await db.query(
-      `SELECT id, email, password, username, created_at
-       FROM users
-       WHERE email = $1`,
-      [email]
-    );
-
-    const user = result.rows[0];
-
-    if (!user) {
-      throw new NotFoundError("User not found with this email");
-    }
-
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-      throw new UnauthorizedError("Invalid credentials");
-    }
-
-    delete user.password;
-    return user;
-  }
+ 
 
   /**
    * Retrieve user information by ID (used internally for auth/session).

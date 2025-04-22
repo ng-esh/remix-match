@@ -53,7 +53,7 @@ describe("POST /auth/register", function () {
 describe("POST /auth/login", function () {
   test("successfully logs in with correct credentials", async function () {
     const res = await request(app).post("/auth/login").send({
-      email: testUserData.email,
+      username: testUserData.username,
       password: testUserData.password,
     });
     expect(res.statusCode).toBe(200);
@@ -64,7 +64,7 @@ describe("POST /auth/login", function () {
 
   test("fails with incorrect credentials", async function () {
     const res = await request(app).post("/auth/login").send({
-      email: testUserData.email,
+      username: testUserData.username,
       password: "wrongpassword",
     });
     expect(res.statusCode).toBe(401);

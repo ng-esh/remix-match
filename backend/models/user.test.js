@@ -61,23 +61,21 @@ describe("User.register", function () {
   });
 });
 
-
-
 describe("User.authenticate", function () {
   test("authenticates valid user", async function () {
-    const user = await User.authenticate("user1@test.com", "password1");
+    const user = await User.authenticate("user1", "password1");
     expect(user).toHaveProperty("username", "user1");
   });
 
-  test("throws NotFoundError for unknown email", async function () {
+  test("throws NotFoundError for unknown username", async function () {
     await expect(
-      User.authenticate("ghost@test.com", "password")
+      User.authenticate("ghost", "password")
     ).rejects.toThrow(NotFoundError);
   });
 
   test("throws UnauthorizedError for bad password", async function () {
     await expect(
-      User.authenticate("user1@test.com", "wrongpass")
+      User.authenticate("user1", "wrongpass")
     ).rejects.toThrow(UnauthorizedError);
   });
 });
