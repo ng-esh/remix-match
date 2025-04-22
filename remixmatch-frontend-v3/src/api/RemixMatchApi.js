@@ -46,8 +46,8 @@ class RemixMatchApi {
    *  ===================== */
 
   /** Log in with email & password -> returns token */
-  static async login({ email, password }) {
-    const res = await this.request("auth/login", { email, password }, "post");
+  static async login({ username, password }) {
+    const res = await this.request("auth/login", { username, password }, "post");
     return res.token;
   }
 
