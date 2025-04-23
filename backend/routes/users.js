@@ -63,15 +63,31 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
+  /**
+   * GET /username/:username
+   * 
+   * Get user info by username.
+   * Public route (or protect with auth if preferred).
+   */
+  router.get("/username/:username", async function (req, res, next) {
+    try {
+      const user = await User.getByUsername(req.params.username);
+      if (!user) throw new NotFoundError("User not found");
+      return res.json({ user });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
 /**
- * PATCH /users/:userId
+ * PATCH /users/:username
  * 
  * Update user profile.
  * Request body: { username }
  * Authorization: must be the correct user.
  */
 
-router.patch("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+router.patch("/users/:username", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, userUpdateSchema);
     if (!validator.valid) {
@@ -79,7 +95,7 @@ router.patch("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function
       throw new BadRequestError(errs.join(", "));
     }
 
-    const updated = await User.update(req.params.userId, req.body);
+    const updated = await User.updateByUsername(req.params.username, req.body);
     return res.json({ user: updated });
   } catch (err) {
     return next(err);
@@ -88,15 +104,15 @@ router.patch("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function
 
 
 /**
- * DELETE /users/:userId
+ * DELETE /users/:username
  * 
  * Delete a user account.
  * Authorization: must be the correct user.
  */
-router.delete("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+router.delete("/users/:username", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
   try {
-    await User.delete(req.params.userId);
-    return res.json({ deleted: +req.params.userId });
+    await User.deleteByUsername(req.params.username);
+    return res.json({ deleted: req.params.username });
   } catch (err) {
     return next(err);
   }

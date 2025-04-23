@@ -12,6 +12,7 @@ const {
   commonAfterEach,
   testUserIds,
   testUserTokens,
+  testUsernames,
 } = require("./_testCommonRoutes");
 
 beforeAll(commonBeforeAll);
@@ -21,10 +22,10 @@ afterAll(async () => {
   await dbTeardown(db);
 });
 
-describe("GET /users/:userId", () => {
+describe("GET /users/:username", () => {
   test("gets user info if correct user", async () => {
     const resp = await request(app)
-      .get(`/users/${testUserIds[0]}`)
+      .get(`/username/${testUsernames[0]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
 
     expect(resp.body.user).toEqual(
@@ -54,29 +55,28 @@ describe("GET /users/:userId", () => {
   
 });
 
-describe("PATCH /users/:userId", () => {
+describe("PATCH /users/:username", () => {
   test("updates username", async () => {
     const resp = await request(app)
-      .patch(`/users/${testUserIds[0]}`)
+      .patch(`/users/${testUsernames[0]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`)
       .send({ username: "newname" });
     
-    console.log(resp.body) 
     expect(resp.body.user.username).toBe("newname");
   });
 
   test("rejects if not authorized", async () => {
     const resp = await request(app)
-      .patch(`/users/${testUserIds[1]}`)
+      .patch(`/users/${testUsernames[1]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`)
-      .send({ email: "bad@example.com" });
+      .send({ username: "badname" });
 
     expect(resp.statusCode).toBe(403);
   });
 
   test("rejects duplicate username", async () => {
     const resp = await request(app)
-      .patch(`/users/${testUserIds[0]}`)
+      .patch(`/users/${testUsernames[0]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`)
       .send({ username: "bob" }); // assuming bob already exists
   
@@ -85,18 +85,18 @@ describe("PATCH /users/:userId", () => {
   
 });
 
-describe("DELETE /users/:userId", () => {
+describe("DELETE /users/:username", () => {
   test("deletes own account", async () => {
     const resp = await request(app)
-      .delete(`/users/${testUserIds[0]}`)
+      .delete(`/users/${testUsernames[0]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
 
-    expect(resp.body).toEqual({ deleted: testUserIds[0] });
+    expect(resp.body).toEqual({ deleted: testUsernames[0] });
   });
 
   test("rejects unauthorized delete", async () => {
     const resp = await request(app)
-      .delete(`/users/${testUserIds[1]}`)
+      .delete(`/users/${testUsernames[1]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
 
     expect(resp.statusCode).toBe(403);
@@ -104,7 +104,7 @@ describe("DELETE /users/:userId", () => {
 
   test("rejects delete without token", async () => {
     const resp = await request(app)
-      .delete(`/users/${testUserIds[0]}`);
+      .delete(`/users/${testUsernames[0]}`);
   
     expect(resp.statusCode).toBe(401);
   });

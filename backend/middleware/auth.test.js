@@ -71,20 +71,28 @@ describe("ensureLoggedIn", () => {
 });
 
 describe("ensureCorrectUser", () => {
-  test("passes if IDs match", () => {
-    res.locals.user = { id: 1 };
-    req.params = { userId: "1" };
+  test("passes if usernames match", () => {
+    res.locals.user = { username: "ngesh" };
+    req.params = { username: "ngesh" };
     ensureCorrectUser(req, res, next);
     expect(next).toHaveBeenCalled();
   });
 
-  test("calls next with ForbiddenError if IDs don't match", () => {
-    res.locals.user = { id: 1 };
-    req.params = { userId: "2" };
+  test("calls next with ForbiddenError if usernames don't match", () => {
+    res.locals.user = { username: "ngesh" };
+    req.params = { username: "otheruser" };
+    ensureCorrectUser(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
+  });
+
+  test("calls next with ForbiddenError if user is missing", () => {
+    res.locals.user = null;
+    req.params = { username: "ngesh" };
     ensureCorrectUser(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
   });
 });
+
 
 describe("ensurePlaylistOwner", () => {
   test("calls next with NotFoundError if playlist doesn't exist", async () => {

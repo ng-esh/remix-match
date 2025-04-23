@@ -61,7 +61,7 @@ function ensureLoggedIn(req, res, next) {
 function ensureCorrectUser(req, res, next) {
   try {
     const user = res.locals.user;
-    if (!user || user.id !== parseInt(req.params.userId)) {
+    if (!user || user.username !== req.params.username) {
       return next(new ForbiddenError("You do not have permission to access this resource"));
     }
     return next();
@@ -69,7 +69,6 @@ function ensureCorrectUser(req, res, next) {
     return next(err);
   }
 }
-
 
 /**
  * Middleware: Ensure the logged-in user is the owner of a playlist.

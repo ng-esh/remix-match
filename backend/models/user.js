@@ -157,7 +157,7 @@ class User {
    * @throws {BadRequestError} - If no data or invalid field provided.
    * @throws {NotFoundError} - If user not found.
    */
-  static async update(userId, data) {
+  static async updateByUsername(username, data) {
     if (!data || !data.username) {
       throw new BadRequestError("Username is required to update");
     }
@@ -166,13 +166,13 @@ class User {
       const result = await db.query(
         `UPDATE users
         SET username = $1
-        WHERE id = $2
+        WHERE username = $2
         RETURNING id, email, username, created_at`,
-        [data.username, userId]
+        [data.username, username]
       );
 
       const user = result.rows[0];
-      if (!user) throw new NotFoundError(`No user found with ID: ${userId}`);
+      if (!user) throw new NotFoundError(`No user found with ID: ${username}`);
 
       return user;
 
@@ -185,20 +185,19 @@ class User {
       throw err; // Rethrow other unexpected errors
     }
   }
-
-  
   /** Delete user. */
-  static async delete(userId) {
+  static async deleteByUsername(username) {
     const result = await db.query(
       `DELETE FROM users
-       WHERE id = $1
-       RETURNING id`,
-      [userId]
+       WHERE username = $1
+       RETURNING username`,
+      [username]
     );
     const user = result.rows[0];
-    if (!user) throw new NotFoundError(`No user with ID: ${userId}`);
-    return user.id;
+    if (!user) throw new NotFoundError(`No user with username: ${username}`);
+    return user.username;
   }
+  
 }
 
 module.exports = User;

@@ -11,6 +11,7 @@ const teardown = require('../tests/dbTeardown');
 // Arrays for multiple users
 const testUserIds = [];
 const testUserTokens = [];
+const testUsernames = []; 
 const testPlaylistIds = []; 
 
 let testPlaylistId;
@@ -41,25 +42,28 @@ async function commonBeforeAll() {
       ('alice', $1, 'alice@example.com', 'Alice', 'A'),
       ('bob', $2, 'bob@example.com', 'Bob', 'B'),
       ('carol', $3, 'carol@example.com', 'Carol', 'C')
-    RETURNING id`, [hashedPw1, hashedPw2, hashedPw3]);
+    RETURNING id, username`, [hashedPw1, hashedPw2, hashedPw3]);
 
-  testUserIds.push(resUsers.rows[0].id);
-  testUserIds.push(resUsers.rows[1].id);
-  testUserIds.push(resUsers.rows[2].id);
+  // ✅ Push IDs and usernames
+  resUsers.rows.forEach(u => {
+    testUserIds.push(u.id);
+    testUsernames.push(u.username);
+  });
 
+  // Create tokens using consistent usernames
   testUserTokens.push(createToken({ 
     id: testUserIds[0], 
-    username: "alice", 
+    username: testUsernames[0], 
     email: "alice@example.com" }));
 
   testUserTokens.push(createToken({ 
     id: testUserIds[1], 
-    username: "bob", 
+    username: testUsernames[1], 
     email: "bob@example.com" }));
 
   testUserTokens.push(createToken({
     id: testUserIds[2],
-    username: "carol",
+    username: testUsernames[2],
     email: "carol@example.com"
     }));
     
@@ -121,6 +125,7 @@ module.exports = {
   commonBeforeEach,
   commonAfterEach,
   testUserIds,
+  testUsernames,
   testUserTokens,
   testPlaylistId,
   testPlaylistId2,

@@ -118,12 +118,11 @@ describe("User.searchByUsername", function () {
 });
 
 
-describe("User.update", function () {
+describe("User.updateByUsername", function () {
   test("successfully updates username", async function () {
-    const updated = await User.update(testUserIds[0], { username: "newname" });
+    const updated = await User.updateByUsername("user1", { username: "newname" });
     expect(updated).toEqual(
       expect.objectContaining({
-        id: testUserIds[0],
         username: "newname",
         email: "user1@test.com",
       })
@@ -131,29 +130,29 @@ describe("User.update", function () {
   });
 
   test("throws BadRequestError if username missing", async function () {
-    await expect(User.update(testUserIds[0], {})).rejects.toThrow(BadRequestError);
+    await expect(User.updateByUsername("user1", {})).rejects.toThrow(BadRequestError);
   });
 
   test("throws NotFoundError if user not found", async function () {
-    await expect(User.update(9999, { username: "ghost" })).rejects.toThrow(NotFoundError);
+    await expect(User.updateByUsername("ghostuser", { username: "ghost" })).rejects.toThrow(NotFoundError);
   });
 
   test("throws BadRequestError if username is taken", async function () {
-    await expect(User.update(testUserIds[0], { username: "user2" })).rejects.toThrow(BadRequestError);
+    await expect(User.updateByUsername("user1", { username: "user2" })).rejects.toThrow(BadRequestError);
   });
 });
 
-describe("User.delete", function () {
+describe("User.deleteByUsername", function () {
   test("successfully deletes user", async function () {
-    const deletedId = await User.delete(testUserIds[0]);
-    expect(deletedId).toBe(testUserIds[0]);
+    const deletedUsername = await User.deleteByUsername("user1");
+    expect(deletedUsername).toBe("user1");
 
-    const user = await User.getById(testUserIds[0]);
+    const user = await User.getByUsername("user1");
     expect(user).toBeNull();
   });
 
   test("throws NotFoundError if user not found", async function () {
-    await expect(User.delete(9999)).rejects.toThrow(NotFoundError);
+    await expect(User.deleteByUsername("ghostuser")).rejects.toThrow(NotFoundError);
   });
 });
 
