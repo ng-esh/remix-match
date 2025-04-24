@@ -1,0 +1,58 @@
+/* SongCard.css
+ *
+ * Styles for the SongCard component
+ */
+
+ .song-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    align-items: center;
+  }
+  
+  .song-card-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+  }
+  
+  .song-card-info {
+    flex: 1;
+  }
+  
+  .song-card-title {
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+  
+  .song-card-artist,
+  .song-card-album {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .song-card-links {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .song-preview {
+    width: 100%;
+  }
+  
+  .spotify-link {
+    color: #4f46e5;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .spotify-link:hover {
+    text-decoration: underline;
+  }
+  

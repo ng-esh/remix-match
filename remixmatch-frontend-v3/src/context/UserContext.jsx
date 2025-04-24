@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
  *
  * Provides global login state across the app.
  * Stores currentUser and token.
- * Offers login() and logout() helpers.
+ * Offers login(), signup(), and logout() helpers.
  */
 
 const UserContext = createContext();
@@ -43,6 +43,12 @@ function UserProvider({ children }) {
     setToken(newToken);
   }
 
+  /** Handle signup from SignupPage */
+  async function signup(signupData) {
+    const newToken = await RemixMatchApi.signup(signupData);
+    setToken(newToken);
+  }
+
   /** Handle logout */
   function logout() {
     setToken(null);
@@ -50,10 +56,10 @@ function UserProvider({ children }) {
     RemixMatchApi.setToken(null);
   }
 
-  const value = { currentUser, login, logout };
+  const value = { currentUser, login, signup, logout };
 
   if (isLoading) {
-    return <p>Loading...</p> ;
+    return <p>Loading...</p>;
   }
 
   return (

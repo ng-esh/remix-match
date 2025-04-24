@@ -52,7 +52,7 @@ class RemixMatchApi {
   }
 
   /** Register new user with userData -> returns token */
-  static async register(userData) {
+  static async signup(userData) {
     // userData should include: username, email, password, firstName, lastName
     const res = await this.request("auth/register", userData, "post");
     return res.token;

@@ -11,7 +11,7 @@ import "../styles/SignupPage.css";
 
 function SignupPage() {
   const navigate = useNavigate();
-  const { login } = useContext(UserContext);
+  const { signup } = useContext(UserContext); // ✅ now using signup instead of login
 
   const initialState = {
     email: "",
@@ -35,7 +35,7 @@ function SignupPage() {
     setIsLoading(true);
     setFormError(null);
     try {
-      await login(formData); // Uses context login, which includes register logic
+      await signup(formData); // ✅ fixed to call signup()
       navigate("/feed");
     } catch (err) {
       setFormError(err);
