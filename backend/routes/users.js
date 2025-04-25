@@ -19,14 +19,28 @@ const db = require("../db");
 const userUpdateSchema = require("../schema/userUpdate.json");
 const userSearchQuerySchema = require("../schema/userSearchQuery.json");
 
-
-
 /**
- * GET /users/:userId
- * 
- * Get user info by user ID.
- * Authorization: must be logged in and correct user.
- */
+   * GET /username/:username
+   * 
+   * Get user info by username.
+   * Public route (or protect with auth if preferred).
+   */
+router.get("/users/username/:username", async function (req, res, next) {
+  try {
+    const user = await User.getByUsername(req.params.username);
+    if (!user) throw new NotFoundError("User not found");
+    return res.json({ user });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// /**
+//  * GET /users/:userId
+//  * 
+//  * Get user info by user ID.
+//  * Authorization: must be logged in and correct user.
+//  */
 router.get("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
   try {
     const user = await User.getById(req.params.userId);
@@ -63,21 +77,6 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
-  /**
-   * GET /username/:username
-   * 
-   * Get user info by username.
-   * Public route (or protect with auth if preferred).
-   */
-  router.get("/username/:username", async function (req, res, next) {
-    try {
-      const user = await User.getByUsername(req.params.username);
-      if (!user) throw new NotFoundError("User not found");
-      return res.json({ user });
-    } catch (err) {
-      return next(err);
-    }
-  });
 
 /**
  * PATCH /users/:username

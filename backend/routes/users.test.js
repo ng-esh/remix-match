@@ -25,7 +25,7 @@ afterAll(async () => {
 describe("GET /users/:username", () => {
   test("gets user info if correct user", async () => {
     const resp = await request(app)
-      .get(`/username/${testUsernames[0]}`)
+      .get(`/users/username/${testUsernames[0]}`)
       .set("authorization", `Bearer ${testUserTokens[0]}`);
 
     expect(resp.body.user).toEqual(
