@@ -82,6 +82,19 @@ class RemixMatchApi {
     return res.votes;
   }
 
+  /** Share a song with another user */
+  static async shareSong(trackId, sharedWith, message) {
+    const res = await this.request("shares", {
+      trackId,         // must be called trackId
+      sharedWith,
+      playlistId: null, // if not sharing into a playlist
+      message
+    }, "post");
+    return res.share;
+  }
+
+
+
 
 
 
