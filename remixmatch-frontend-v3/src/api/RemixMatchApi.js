@@ -64,6 +64,13 @@ class RemixMatchApi {
     return res.user;
   }
 
+  /** Search Spotify tracks */
+  static async searchSpotify(query) {
+    const res = await this.request("spotify/search", { q: query });
+    return res.results;
+  }
+
+
   // More playlist/song/share methods can go here
 }
 
