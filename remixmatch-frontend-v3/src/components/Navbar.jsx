@@ -20,6 +20,7 @@ function Navbar() {
         {currentUser ? (
           <>
             <span className="text-sm">Welcome, {currentUser.username}</span>
+            <Link to="/search" className="hover:underline">Search</Link>
             <button
               onClick={handleLogout}
               className="bg-white text-indigo-700 px-3 py-1 rounded hover:bg-gray-200 transition"
