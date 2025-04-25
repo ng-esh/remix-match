@@ -1,19 +1,16 @@
-/**
- * SongCard Component
- * 
- * Displays basic song info from Spotify search results.
- * Includes album cover, title, artist, and optional preview link.
- */
-
-import React from "react";
+import React, { useState } from "react";
+import ShareFormModal from "./ShareFormModal";
 import "../styles/SongCard.css";
 
 function SongCard({ song }) {
-  const { name, artist, album, albumCover, spotifyUrl, previewUrl } = song;
+  const { name, artist, album, albumCover, spotifyUrl, previewUrl, id } = song;
+
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="song-card">
       <img src={albumCover} alt={`${album} cover`} className="song-card-img" />
+
       <div className="song-card-info">
         <h3 className="song-card-title">{name}</h3>
         <p className="song-card-artist">{artist}</p>
@@ -31,8 +28,16 @@ function SongCard({ song }) {
           >
             Open in Spotify
           </a>
+
+          <button className="share-btn" onClick={() => setShowModal(true)}>
+            Share
+          </button>
         </div>
       </div>
+
+      {showModal && (
+        <ShareFormModal songId={id} onClose={() => setShowModal(false)} />
+      )}
     </div>
   );
 }

@@ -56,3 +56,18 @@
     text-decoration: underline;
   }
   
+  .share-btn {
+    background-color: #ec4899;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: none;
+  }
+  
+  .share-btn:hover {
+    background-color: #db2777;
+  }
+  

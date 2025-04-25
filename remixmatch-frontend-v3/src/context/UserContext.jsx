@@ -13,7 +13,7 @@ const UserContext = createContext();
 
 function UserProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem("remixmatch-token"));
   const [isLoading, setIsLoading] = useState(true);
 
   /** Set token and fetch user */
@@ -40,21 +40,24 @@ function UserProvider({ children }) {
   /** Handle login from LoginPage */
   async function login(loginData) {
     const newToken = await RemixMatchApi.login(loginData);
+    localStorage.setItem("remixmatch-token", newToken);
     setToken(newToken);
   }
-
+  
   /** Handle signup from SignupPage */
   async function signup(signupData) {
     const newToken = await RemixMatchApi.signup(signupData);
+    localStorage.setItem("remixmatch-token", newToken);
     setToken(newToken);
   }
-
   /** Handle logout */
   function logout() {
+    localStorage.removeItem("remixmatch-token");
     setToken(null);
     setCurrentUser(null);
     RemixMatchApi.setToken(null);
   }
+  
 
   const value = { currentUser, login, signup, logout };
 
