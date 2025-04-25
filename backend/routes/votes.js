@@ -38,6 +38,21 @@ router.post("/:playlistId", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
+/** GET /user
+ * Get all votes by the logged-in user
+ * Returns: [{ playlist_id, vote_type, voted_at }, ...]
+ */
+router.get("/user", ensureLoggedIn, async function (req, res, next) {
+  try {
+    const userId = res.locals.user.id;
+    const votes = await Vote.getUserVotes(userId);
+    return res.json({ votes });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+
 /** GET /votes/:playlistId
  * Get the current vote count summary for a playlist.
  * Returns: { upvotes, downvotes, totalVotes }

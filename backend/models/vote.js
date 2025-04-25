@@ -53,6 +53,18 @@ class Vote {
     return await Vote.getPlaylistVotes(playlistId);
   }
 
+  /** Get all votes cast by a specific user */
+  static async getUserVotes(userId) {
+    const result = await db.query(
+      `SELECT playlist_id, vote_type
+      FROM votes
+      WHERE user_id = $1`,
+      [userId]
+    );
+    return result.rows;
+  }
+
+
   /**
    * Get total upvotes, downvotes, and total vote count for a playlist.
    *
