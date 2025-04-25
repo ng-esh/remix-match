@@ -70,6 +70,20 @@ class RemixMatchApi {
     return res.results;
   }
 
+  /** Get songs the logged-in user has shared */
+  static async getSentSongShares() {
+    const res = await this.request("song-shares/sent"); // this route already exists in your backend
+    return res.shares;
+  }
+
+  /** Get all votes by the logged-in user */
+  static async getUserVotes() {
+    const res = await this.request("votes/user");
+    return res.votes;
+  }
+
+
+
 
   // More playlist/song/share methods can go here
 }
