@@ -31,13 +31,23 @@ class RemixMatchApi {
 
     const params = method === "get" ? data : {};
 
-    try {
-      const res = await axios({ url, method, data, params, headers });
-      return res.data;
-    } catch (err) {
-      console.error("API Error:", err.response);
-      const message = err.response?.data?.error?.message || err.message;
-      throw Array.isArray(message) ? message : [message];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await axios({ url, method, data, params, headers });
+        return res.data;
+      } catch (err) {
+        const status = err?.response?.status;
+
+        // Only retry for specific temporary network issues (502/503/504 or no status)
+        const canRetry = !status || [502, 503, 504].includes(status);
+
+        if (attempt === 1 || !canRetry) {
+          console.error("API Error:", err.response);
+          const message = err.response?.data?.error?.message || err.response?.data?.error || err.message;
+          throw Array.isArray(message) ? message : [message];
+        }
+        // Else, retry once automatically
+      }
     }
   }
 
