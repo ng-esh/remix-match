@@ -32,6 +32,7 @@ function Navbar() {
           <>
             <Link to="/login" className="hover:underline">Login</Link>
             <Link to="/signup" className="hover:underline">Signup</Link>
+            <Link to="/playlists" className="hover:underline">Playlists</Link>
           </>
         )}
       </div>

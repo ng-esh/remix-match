@@ -13,7 +13,7 @@ import FeedPage from "./pages/FeedPage";
 import SearchPage from "./pages/SearchPage";
 import MyPlaylists from "./pages/MyPlaylists";
 import PlaylistDetails from "./pages/PlaylistDetails";
-
+import CreatePlaylistPage from "./pages/CreatePlaylistPage";
 
 
 function AppRoutes() {
@@ -26,6 +26,7 @@ function AppRoutes() {
       <Route path="/search" element={<SearchPage />} />
       <Route path="/playlists" element={<MyPlaylists />} />
       <Route path="/playlists/:id" element={<PlaylistDetails />} />
+      <Route path="/playlists/new" element={<CreatePlaylistPage />} />
 
     </Routes>
   );

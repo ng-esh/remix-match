@@ -32,3 +32,24 @@
     font-weight: 600;
   }
   
+  .my-playlists-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .create-playlist-button {
+    background-color: #4f46e5;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+  
+  .create-playlist-button:hover {
+    background-color: #4338ca;
+  }
+  

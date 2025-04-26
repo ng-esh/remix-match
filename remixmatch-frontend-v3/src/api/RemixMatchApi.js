@@ -137,6 +137,12 @@ class RemixMatchApi {
     await this.request(`playlists/${playlistId}`, {}, "delete");
   }
 
+  /** Create a new playlist */
+  static async createPlaylist(data) {
+    const res = await this.request("playlists", data, "post");
+    return res.playlist; // ⬅️ IMPORTANT
+  }
+
 
 
 
