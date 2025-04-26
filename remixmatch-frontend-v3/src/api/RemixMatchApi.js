@@ -93,6 +93,19 @@ class RemixMatchApi {
     return res.share;
   }
 
+  /** Get playlists the logged-in user created */
+  static async getMyPlaylists() {
+    const res = await this.request("playlists");
+    return res.playlists;
+  }
+
+  /** Get playlists shared with the logged-in user */
+  static async getPlaylistsSharedWithMe(userId) {
+    const res = await this.request(`playlist-shares/user/${userId}`);
+    return res.sharedPlaylists;
+  }
+
+
 
 
 

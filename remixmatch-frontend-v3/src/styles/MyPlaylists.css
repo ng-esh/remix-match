@@ -1,0 +1,34 @@
+.my-playlists-container {
+    padding: 2rem;
+    max-width: 768px;
+    margin: 0 auto;
+  }
+  
+  .my-playlists-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .my-playlists-empty {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 2rem;
+  }
+  
+  .my-playlists-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .my-playlists-item {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
