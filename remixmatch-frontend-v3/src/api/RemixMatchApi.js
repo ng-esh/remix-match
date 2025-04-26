@@ -115,6 +115,30 @@ class RemixMatchApi {
     return res.sharedPlaylists;
   }
 
+  /** Get a playlist's details by ID */
+  static async getPlaylistById(playlistId) {
+    const res = await this.request(`playlists/${playlistId}`);
+    return res.playlist;
+  }
+
+  /** Get songs inside a playlist */
+  static async getSongsInPlaylist(playlistId) {
+    const res = await this.request(`playlist-songs/${playlistId}`);
+    return res.songs;
+  }
+
+  /** Remove a song from a playlist */
+  static async removeSongFromPlaylist(playlistId, songId) {
+    await this.request(`playlist-songs/${playlistId}/${songId}`, {}, "delete");
+  }
+
+  /** Delete a playlist by ID */
+  static async deletePlaylist(playlistId) {
+    await this.request(`playlists/${playlistId}`, {}, "delete");
+  }
+
+
+
 
 
 

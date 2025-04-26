@@ -1,0 +1,116 @@
+.playlist-details-container {
+    padding: 2rem;
+    max-width: 768px;
+    margin: 0 auto;
+  }
+  
+  .playlist-details-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .playlist-details-empty {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 2rem;
+  }
+  
+  .playlist-songs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .playlist-song-item {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .playlist-song-title {
+    font-weight: 700;
+  }
+  
+  .playlist-song-artist {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .playlist-remove-btn {
+    background-color: #ef4444;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .playlist-remove-btn:hover {
+    background-color: #dc2626;
+  }
+  
+  .playlist-details-actions {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .playlist-delete-btn {
+    background-color: #ef4444;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .playlist-delete-btn:hover {
+    background-color: #dc2626;
+  }
+  
+  .playlist-details-empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 60vh;
+    padding: 2rem;
+  }
+  
+  .playlist-details-empty-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .playlist-details-empty-message {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+  
+  .playlist-details-back-button {
+    background-color: #4f46e5;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+  
+  .playlist-details-back-button:hover {
+    background-color: #4338ca;
+  }
+  
