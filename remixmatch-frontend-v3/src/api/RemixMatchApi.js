@@ -149,6 +149,12 @@ class RemixMatchApi {
     return res.sessions;
   }
 
+  /** Create a new live listening session */
+  static async createLiveSession(data) {
+    const res = await this.request("live/create", data, "post");
+    return res.session;
+  }
+
 
 
 

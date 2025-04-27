@@ -15,6 +15,7 @@ import MyPlaylists from "./pages/MyPlaylists";
 import PlaylistDetails from "./pages/PlaylistDetails";
 import CreatePlaylistPage from "./pages/CreatePlaylistPage";
 import LiveSessionsPage from "./pages/LiveSessionsPage";
+import HostSessionPage from "./pages/HostSessionPage";
 
 
 function AppRoutes() {
@@ -29,6 +30,7 @@ function AppRoutes() {
       <Route path="/playlists/:id" element={<PlaylistDetails />} />
       <Route path="/playlists/new" element={<CreatePlaylistPage />} />
       <Route path="/live" element={<LiveSessionsPage />} />
+      <Route path="/live/host" element={<HostSessionPage />} />
 
     </Routes>
   );
