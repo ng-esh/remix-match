@@ -122,6 +122,68 @@ class LiveListening {
     return result.rows;
   }
 
+  /**
+   * Get session by ID.
+   * Used for validating session ownership or checking session status.
+   * @param {number} sessionId
+   * @returns {Object} session data or throws NotFoundError
+   */
+  static async getSessionById(sessionId) {
+    const result = await db.query(
+      `SELECT id, host_id, session_name, source_type, source_id, is_public, is_active, created_at
+      FROM live_sessions
+      WHERE id = $1`,
+      [sessionId]
+    );
+
+    const session = result.rows[0];
+    if (!session) throw new NotFoundError(`No session with ID: ${sessionId}`);
+    return session;
+  }
+
+  /**
+   * Get all public and active sessions, including host username.
+   * 
+   * This joins the `users` table to pull the username of the session host.
+   * 
+   * Note:
+   * - `host_username` is not a real column on the live_sessions table.
+   * - It is added via SQL JOIN and aliasing inside this query.
+   *
+   * @returns {Array<Object>} Array of session objects:
+   *   - id
+   *   - host_id
+   *   - host_username
+   *   - session_name
+   *   - source_type
+   *   - source_id
+   *   - is_active
+   *   - created_at
+   */
+  static async getPublicSessions() {
+    const result = await db.query(
+      `SELECT 
+        l.id,
+        l.host_id,
+        u.username AS host_username,
+        l.session_name,
+        l.source_type,
+        l.source_id,
+        l.is_active,
+        l.created_at
+      FROM live_sessions AS l
+      JOIN users AS u ON l.host_id = u.id
+      WHERE l.is_public = TRUE
+        AND l.is_active = TRUE
+      ORDER BY l.created_at DESC`
+    );
+    return result.rows;
+}
+
+
+  
+
+  
   /** End a session if the user is the host */
   static async endSession(sessionId, userId) {
     const sessionRes = await db.query(
@@ -148,39 +210,6 @@ class LiveListening {
     return { message: "Session ended successfully." };
   }
 
-  /**
-   * Get session by ID.
-   * Used for validating session ownership or checking session status.
-   * @param {number} sessionId
-   * @returns {Object} session data or throws NotFoundError
-   */
-  static async getSessionById(sessionId) {
-    const result = await db.query(
-      `SELECT id, host_id, session_name, source_type, source_id, is_public, is_active, created_at
-      FROM live_sessions
-      WHERE id = $1`,
-      [sessionId]
-    );
-
-    const session = result.rows[0];
-    if (!session) throw new NotFoundError(`No session with ID: ${sessionId}`);
-    return session;
-  }
-
-  /**
-   * Get all public and active sessions.
-   * @returns {Array<Object>} list of sessions
-   */
-    static async getPublicSessions() {
-    const result = await db.query(
-      `SELECT id, host_id, session_name, source_type, source_id, is_active, created_at
-      FROM live_sessions
-      WHERE is_public = TRUE AND is_active = TRUE`
-    );
-    return result.rows;
-  }
-
-  
 }
 
 module.exports = LiveListening;

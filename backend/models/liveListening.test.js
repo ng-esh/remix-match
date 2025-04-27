@@ -199,6 +199,7 @@ describe("LiveListening.getPublicSessions", () => {
         expect.objectContaining({
           id: session.id,
           host_id: testUserIds[0],
+          host_username: expect.any(String), // ✅ <-- expect a host_username now
           session_name: "Public Session",
           is_active: true
         })
@@ -207,7 +208,6 @@ describe("LiveListening.getPublicSessions", () => {
   });
 
   test("returns empty array if no public sessions", async () => {
-    // Clear table or ensure no public sessions
     await db.query(`UPDATE live_sessions SET is_public = FALSE`);
     const sessions = await LiveListening.getPublicSessions();
     expect(sessions).toEqual([]);
