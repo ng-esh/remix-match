@@ -14,6 +14,7 @@ import SearchPage from "./pages/SearchPage";
 import MyPlaylists from "./pages/MyPlaylists";
 import PlaylistDetails from "./pages/PlaylistDetails";
 import CreatePlaylistPage from "./pages/CreatePlaylistPage";
+import LiveSessionsPage from "./pages/LiveSessionsPage";
 
 
 function AppRoutes() {
@@ -27,6 +28,7 @@ function AppRoutes() {
       <Route path="/playlists" element={<MyPlaylists />} />
       <Route path="/playlists/:id" element={<PlaylistDetails />} />
       <Route path="/playlists/new" element={<CreatePlaylistPage />} />
+      <Route path="/live" element={<LiveSessionsPage />} />
 
     </Routes>
   );

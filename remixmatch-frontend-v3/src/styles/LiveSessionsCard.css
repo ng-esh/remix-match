@@ -1,0 +1,58 @@
+.live-session-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .live-session-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .live-session-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+  .live-session-host {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .live-session-source {
+    font-size: 0.875rem;
+    color: #4f46e5;
+    font-weight: 600;
+  }
+  
+  .live-session-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+  
+  .lock-icon {
+    margin-left: 0.5rem;
+    color: #ef4444;
+  }
+  
+  .join-session-button {
+    background-color: #4f46e5;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .join-session-button:hover {
+    background-color: #4338ca;
+  }
+  

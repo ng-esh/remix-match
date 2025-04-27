@@ -143,6 +143,12 @@ class RemixMatchApi {
     return res.playlist; // ⬅️ IMPORTANT
   }
 
+  /** Get all public live listening sessions */
+  static async getPublicSessions() {
+    const res = await this.request("live/public");
+    return res.sessions;
+  }
+
 
 
 

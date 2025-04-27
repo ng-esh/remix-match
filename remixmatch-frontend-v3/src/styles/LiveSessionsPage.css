@@ -1,0 +1,24 @@
+.live-sessions-container {
+    padding: 2rem;
+    max-width: 768px;
+    margin: 0 auto;
+  }
+  
+  .live-sessions-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .live-sessions-empty {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 2rem;
+  }
+  
+  .live-sessions-list {
+    display: grid;
+    gap: 1rem;
+  }
+  
