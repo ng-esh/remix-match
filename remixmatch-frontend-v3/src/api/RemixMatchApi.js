@@ -145,13 +145,19 @@ class RemixMatchApi {
 
   /** Get all public live listening sessions */
   static async getPublicSessions() {
-    const res = await this.request("live/public");
+    const res = await this.request("lives/public");
     return res.sessions;
   }
 
   /** Create a new live listening session */
   static async createLiveSession(data) {
-    const res = await this.request("live/create", data, "post");
+    const res = await this.request("lives/create", data, "post");
+    return res.session;
+  }
+
+  /** Get details for a specific session */
+  static async getSessionById(sessionId) {
+    const res = await this.request(`lives/${sessionId}`); // <-- fixed here
     return res.session;
   }
 
