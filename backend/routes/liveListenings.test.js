@@ -191,6 +191,42 @@ describe("GET /lives/host", () => {
   });
 });
 
+describe("GET /lives/:sessionId", () => {
+  test("works for valid session ID", async () => {
+    const res = await request(app)
+      .get(`/lives/${testSessionId}`)
+      .set("authorization", `Bearer ${testUserTokens[0]}`);
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body.session).toEqual(
+      expect.objectContaining({
+        id: testSessionId,
+        session_name: expect.any(String),
+        source_type: expect.any(String),
+        source_id: expect.any(String),
+        is_active: true,
+        is_public: expect.any(Boolean),
+        created_at: expect.any(String)
+      })
+    );
+  });
+
+  test("throws 404 for invalid session ID", async () => {
+    const res = await request(app)
+      .get(`/lives/999999`)
+      .set("authorization", `Bearer ${testUserTokens[0]}`);
+    
+    expect(res.statusCode).toBe(404);
+  });
+
+  test("unauthorized if no token", async () => {
+    const res = await request(app)
+      .get(`/lives/${testSessionId}`);
+    
+    expect(res.statusCode).toBe(401);
+  });
+});
+
 describe("PATCH /lives/:sessionId/end", () => {
   test("ends a session if host", async () => {
     const res = await request(app)

@@ -41,9 +41,6 @@ router.post("/create", ensureLoggedIn, async function (req, res, next) {
       sourceId: req.body.sourceId,
       isPublic: req.body.isPublic ?? false
     };
-
-    console.log("🎯 createSession payload", payload);
-
     const session = await LiveListening.createSession(payload);
     return res.status(201).json({ session });
   } catch (err) {
@@ -149,6 +146,30 @@ router.get("/host", ensureLoggedIn, async function (req, res, next) {
     return next(err);
   }
 });
+
+/** GET /live/:sessionId
+ * 
+ * Get details of a specific live session by ID.
+ * 
+ * Authorization: must be logged in.
+ * 
+ * Returns: { session }
+ */
+router.get("/:sessionId", ensureLoggedIn, async function (req, res, next) {
+  try {
+    const sessionId = +req.params.sessionId;
+    const session = await LiveListening.getSessionById(sessionId);
+
+    if (!session) {
+      throw new NotFoundError(`Session with ID ${sessionId} not found`);
+    }
+
+    return res.json({ session });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 
 /** PATCH /live/:sessionId/end
  * End a session (host only).
