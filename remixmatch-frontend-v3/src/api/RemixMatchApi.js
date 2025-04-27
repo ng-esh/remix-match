@@ -157,7 +157,7 @@ class RemixMatchApi {
 
   /** Get details for a specific session */
   static async getSessionById(sessionId) {
-    const res = await this.request(`lives/${sessionId}`); // <-- fixed here
+    const res = await this.request(`lives/${sessionId}`); 
     return res.session;
   }
 
