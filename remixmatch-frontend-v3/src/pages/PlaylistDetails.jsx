@@ -96,23 +96,15 @@ function PlaylistDetails() {
       ) : (
         <ul className="playlist-songs-list">
           {songs.map(song => (
-            <li key={song.id} className="playlist-song-item">
-              <div>
-                <p className="playlist-song-title">{song.song_title}</p>
-                <p className="playlist-song-artist">{song.song_artist}</p>
-              </div>
-
-              {isOwner && (
-                <button
-                  className="playlist-remove-btn"
-                  onClick={() => handleRemoveSong(song.id)}
-                >
-                  Remove
-                </button>
-              )}
-            </li>
+            <PlaylistSongItem
+              key={song.id}
+              song={song}
+              isOwner={isOwner}
+              onRemove={() => handleRemoveSong(song.id)}
+            />
           ))}
         </ul>
+
       )}
     </div>
   );
