@@ -26,7 +26,8 @@ function SortableSongItem({ song }) {
       {...attributes}
       {...listeners}
     >
-      {song.song_title} — {song.song_artist}
+      <span className="sortable-song-title">{song.song_title}</span>
+      <span className="sortable-song-artist"> — {song.song_artist}</span>
     </div>
   );
 }
