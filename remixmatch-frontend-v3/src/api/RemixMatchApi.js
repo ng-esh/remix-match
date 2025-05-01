@@ -161,6 +161,42 @@ class RemixMatchApi {
     return res.session;
   }
 
+  /** Share a playlist with another user by username */
+  static async sharePlaylist({ playlistId, username }) {
+    const res = await this.request(`playlist-shares`, {
+      playlistId,
+      username,
+    }, "post");
+    return res.share;
+  }
+
+  /** Delete a playlist by ID */
+  static async deletePlaylist(playlistId) {
+    const res = await this.request(`playlists/${playlistId}`, {}, "delete");
+    return res.deleted;
+  }
+
+  /** Update playlist name */
+  static async updatePlaylistName(playlistId, newName) {
+    const res = await this.request(`playlists/${playlistId}`, { name: newName }, "patch");
+    return res.playlist;
+  }
+
+  /** Reorder songs in a playlist using Spotify track IDs */
+  static async reorderPlaylistSongs(playlistId, orderedTrackIds) {
+    const res = await this.request(
+      `playlist-songs/${playlistId}/songs/reorder`,
+      { orderedTrackIds },
+      "patch"
+    );
+    return res.reordered;
+  }
+
+
+
+
+
+
 
 
 
