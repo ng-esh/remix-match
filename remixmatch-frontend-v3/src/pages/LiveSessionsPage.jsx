@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from "react";
 import RemixMatchApi from "../api/RemixMatchApi";
 import "../styles/LiveSessionsPage.css";
-import LiveSessionCard from "../components/LiveSessionCard"; // we'll build this next
+import LiveSessionCard from "../components/LiveSessionCard"; 
 
 function LiveSessionsPage() {
   const [sessions, setSessions] = useState([]);

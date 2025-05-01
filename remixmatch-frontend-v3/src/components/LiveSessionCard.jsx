@@ -13,7 +13,7 @@ function LiveSessionCard({ session }) {
   const navigate = useNavigate();
 
   function handleJoin() {
-    navigate(`/live/${id}`); // we'll wire this route later
+    navigate(`/live/${id}`); 
   }
 
   return (
