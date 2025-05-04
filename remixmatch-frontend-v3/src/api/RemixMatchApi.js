@@ -214,19 +214,6 @@ class RemixMatchApi {
     return await this.request(`votes/${playlistId}`, {}, "delete");
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   // More playlist/song/share methods can go here
 }
 
