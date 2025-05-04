@@ -114,3 +114,13 @@
     background-color: #4338ca;
   }
   
+  .playlist-vote-block {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    display: flex;
+    justify-content: center;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  

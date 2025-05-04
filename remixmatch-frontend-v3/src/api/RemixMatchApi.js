@@ -192,6 +192,28 @@ class RemixMatchApi {
     return res.reordered;
   }
 
+  /** Get vote totals for a playlist */
+  static async getPlaylistVotes(playlistId) {
+    const res = await this.request(`votes/${playlistId}`);
+    return res;
+  }
+
+  /** Get all votes by current user */
+  static async getUserVotes() {
+    const res = await this.request("votes/user");
+    return res.votes;
+  }
+
+  /** Cast a vote (1 for upvote, -1 for downvote) */
+  static async castVote(playlistId, voteType) {
+    return await this.request(`votes/${playlistId}`, { voteType }, "post");
+  }
+
+  /** Remove vote */
+  static async removeVote(playlistId) {
+    return await this.request(`votes/${playlistId}`, {}, "delete");
+  }
+
 
 
 

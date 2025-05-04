@@ -1,0 +1,31 @@
+.vote-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  
+  .vote-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.2s ease;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .vote-icon:hover {
+    color: #374151;
+  }
+  
+  .vote-icon.active {
+    color: #4f46e5;
+  }
+  
+  .vote-count {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  

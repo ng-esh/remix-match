@@ -14,6 +14,7 @@ import "../styles/PlaylistDetails.css";
 import SharePlaylistForm from "../components/SharePlaylistForm";
 import PlaylistSongItem from "../components/PlaylistSongItem";
 import SortableSongItem from "../components/SortableSongItem";
+import VoteButton from "../components/VoteButton";
 
 import {
   DndContext,
@@ -222,6 +223,12 @@ function PlaylistDetails() {
           </ul>
         )
       )}
+      
+      {playlist.isPublic && (
+          <div className="playlist-vote-block">
+            <VoteButton playlistId={playlist.id} />
+          </div>
+        )}
     </div>
   );
 }
