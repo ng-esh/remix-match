@@ -12,13 +12,32 @@ function ShareFormModal({ songId, onClose }) {
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSuccess, setFormSuccess] = useState(null);
 
   async function handleSubmit(evt) {
     evt.preventDefault();
     setIsSubmitting(true);
+    setFormSuccess(null);
+
+    // 🩹 Optional token re-sync (in case context failed to load it)
+    if (!RemixMatchApi.token) {
+      const storedToken = localStorage.getItem("remixmatch-token");
+      if (storedToken) RemixMatchApi.setToken(storedToken);
+    }
+
     try {
-      await RemixMatchApi.shareSong(songId, recipient, message);
-      onClose();
+      // Step 1: Convert username to user ID using your search endpoint
+      const recipientId = await RemixMatchApi.getUserIdByUsername(recipient);
+
+      // Step 2: Share the song using recipient ID
+      await RemixMatchApi.shareSong(songId, recipientId, message);
+
+      // Step 3: Show success message then close
+      setFormSuccess("✅ Song shared!");
+      setTimeout(() => {
+        onClose();
+      }, 1200);
+
     } catch (err) {
       console.error("Failed to share song:", err);
     } finally {
@@ -30,6 +49,13 @@ function ShareFormModal({ songId, onClose }) {
     <div className="share-modal-backdrop">
       <div className="share-modal">
         <h2>Share this Song</h2>
+
+        {formSuccess && (
+          <div className="form-success">
+            {formSuccess}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <label>
             Share with (username):

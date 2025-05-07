@@ -68,10 +68,18 @@ class RemixMatchApi {
     return res.token;
   }
 
-  /** Get current user profile by username (if implemented) */
+  /** Get current user profile by username  */
   static async getCurrentUser(username) {
     const res = await this.request(`users/username/${username}`);
     return res.user;
+  }
+
+  /** Get user ID by exact username using fuzzy search */
+  static async getUserIdByUsername(username) {
+    const res = await this.request(`search?query=${username}`);
+    const match = res.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    if (!match) throw new Error("User not found");
+    return match.id;
   }
 
   /** Search Spotify tracks */
@@ -94,7 +102,7 @@ class RemixMatchApi {
 
   /** Share a song with another user */
   static async shareSong(trackId, sharedWith, message) {
-    const res = await this.request("shares", {
+    const res = await this.request("song-shares", {
       trackId,         // must be called trackId
       sharedWith,
       playlistId: null, // if not sharing into a playlist

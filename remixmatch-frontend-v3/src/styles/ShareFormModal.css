@@ -70,3 +70,9 @@
     background-color: #6b7280;
   }
   
+  .form-success {
+    color: green;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  

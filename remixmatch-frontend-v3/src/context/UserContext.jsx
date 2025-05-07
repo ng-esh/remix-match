@@ -40,13 +40,16 @@ function UserProvider({ children }) {
   /** Handle login from LoginPage */
   async function login(loginData) {
     const newToken = await RemixMatchApi.login(loginData);
+    RemixMatchApi.setToken(newToken); // ✅ Immediately usable for next API call
     localStorage.setItem("remixmatch-token", newToken);
     setToken(newToken);
   }
   
+  
   /** Handle signup from SignupPage */
   async function signup(signupData) {
     const newToken = await RemixMatchApi.signup(signupData);
+    RemixMatchApi.setToken(newToken);
     localStorage.setItem("remixmatch-token", newToken);
     setToken(newToken);
   }
