@@ -1,43 +1,88 @@
-/* FeedPage.css
- *
- * Enhanced styles for the FeedPage component
- */
-
- .feed-container {
-  padding: 1.5rem;
-  background-color: #f9fafb;
+/* Core Layout */
+.feed-container {
+  display: flex;
   min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.feed-header {
-  font-size: 1.875rem;
+.dark-mode {
+  background-color: #121212;
+  color: #f3f4f6;
+}
+
+/* Sidebar */
+.feed-sidebar {
+  width: 220px;
+  background-color: #1e1e1e;
+  padding: 1rem;
+  color: #ffffff;
+}
+
+.sidebar-header {
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #111827;
+  font-size: 1.1rem;
 }
 
-.feed-subtext {
-  color: #4b5563;
-  margin-bottom: 1rem;
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.feed-section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
-  color: #1f2937;
+.sidebar-list li {
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #d1d5db;
+  cursor: pointer;
 }
 
-.feed-toggle {
+.sidebar-list li:hover {
+  color: #ffffff;
+}
+
+/* Main Section */
+.feed-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+/* Header + Toggles */
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.toggle-group label {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
   font-size: 0.875rem;
-  margin-bottom: 1rem;
+  color: inherit;
 }
 
-.feed-toggle input {
+.toggle-group input {
   margin-right: 0.5rem;
 }
 
+/* Sections */
+.feed-section {
+  margin-bottom: 2rem;
+}
+
+.feed-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Feed List */
 .feed-list {
   display: flex;
   flex-wrap: wrap;
@@ -47,16 +92,21 @@
   list-style: none;
 }
 
+/* Feed Cards */
 .feed-card {
   background-color: #ffffff;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  width: 260px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   padding: 1rem;
+  width: 260px;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: transform 0.2s ease;
+}
+
+.dark-mode .feed-card {
+  background-color: #181818;
 }
 
 .feed-card:hover {
@@ -77,15 +127,22 @@
 .feed-song-title {
   font-weight: 600;
   margin-bottom: 0.25rem;
+  color: inherit;
 }
 
 .feed-song-artist,
+.feed-song-album,
 .feed-playlist-name,
-.feed-playlist-owner,
-.feed-song-album {
+.feed-playlist-owner {
   font-size: 0.875rem;
   color: #6b7280;
-  margin-bottom: 0.25rem;
+}
+
+.dark-mode .feed-song-artist,
+.dark-mode .feed-song-album,
+.dark-mode .feed-playlist-name,
+.dark-mode .feed-playlist-owner {
+  color: #d1d5db;
 }
 
 .feed-song-message {
@@ -93,4 +150,39 @@
   font-size: 0.85rem;
   color: #4b5563;
   margin-top: 0.5rem;
+}
+
+.dark-mode .feed-song-message {
+  color: #cbd5e1;
+}
+
+/* Button */
+.hide-btn {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.hide-btn:hover {
+  color: #dc2626;
+}
+
+/* Fallbacks */
+.feed-subtext {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .feed-subtext {
+  color: #a1a1aa;
+}
+
+.loading-text {
+  font-size: 1rem;
+  padding: 2rem;
 }
