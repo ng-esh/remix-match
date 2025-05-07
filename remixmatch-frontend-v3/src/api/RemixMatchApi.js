@@ -68,6 +68,10 @@ class RemixMatchApi {
     return res.token;
   }
 
+   /** =====================
+   *  USERS
+   *  ===================== */
+
   /** Get current user profile by username  */
   static async getCurrentUser(username) {
     const res = await this.request(`users/username/${username}`);
@@ -82,22 +86,30 @@ class RemixMatchApi {
     return match.id;
   }
 
+   /** =====================
+   *  SPOTIFY
+   *  ===================== */
+
   /** Search Spotify tracks */
   static async searchSpotify(query) {
     const res = await this.request("spotify/search", { q: query });
     return res.results;
   }
 
+  /** Get full song details from Spotify by track ID */
+  static async getSpotifyTrackById(trackId) {
+    const res = await this.request(`spotify/track/${trackId}`);
+    return res.track;
+  }
+
+  /** =====================
+   *  SONG-SHARE
+   *  ===================== */
+
   /** Get songs the logged-in user has shared */
   static async getSentSongShares() {
     const res = await this.request("song-shares/sent"); // this route already exists in your backend
     return res.shares;
-  }
-
-  /** Get all votes by the logged-in user */
-  static async getUserVotes() {
-    const res = await this.request("votes/user");
-    return res.votes;
   }
 
   /** Share a song with another user */
@@ -111,16 +123,20 @@ class RemixMatchApi {
     return res.share;
   }
 
+   /** =====================
+   *  PLAYLISTS
+   *  ===================== */
+
+  /** Create a new playlist */
+  static async createPlaylist(data) {
+    const res = await this.request("playlists", data, "post");
+    return res.playlist; // ⬅️ IMPORTANT
+  }
+
   /** Get playlists the logged-in user created */
   static async getMyPlaylists() {
     const res = await this.request("playlists");
     return res.playlists;
-  }
-
-  /** Get playlists shared with the logged-in user */
-  static async getPlaylistsSharedWithMe(userId) {
-    const res = await this.request(`playlist-shares/user/${userId}`);
-    return res.sharedPlaylists;
   }
 
   /** Get a playlist's details by ID */
@@ -128,6 +144,42 @@ class RemixMatchApi {
     const res = await this.request(`playlists/${playlistId}`);
     return res.playlist;
   }
+
+  /** Update playlist name */
+  static async updatePlaylistName(playlistId, newName) {
+    const res = await this.request(`playlists/${playlistId}`, { name: newName }, "patch");
+    return res.playlist;
+  }
+
+  /** Delete a playlist by ID */
+  static async deletePlaylist(playlistId) {
+    const res = await this.request(`playlists/${playlistId}`, {}, "delete");
+    return res.deleted;
+  }
+
+
+   /** =====================
+   *  PLAYLIST-SHARE
+   *  ===================== */
+
+  /** Get playlists shared with the logged-in user */
+  static async getPlaylistsSharedWithMe(userId) {
+    const res = await this.request(`playlist-shares/user/${userId}`);
+    return res.sharedPlaylists;
+  }
+
+  /** Share a playlist with another user by username */
+  static async sharePlaylist({ playlistId, username }) {
+    const res = await this.request(`playlist-shares`, {
+      playlistId,
+      username,
+    }, "post");
+    return res.share;
+  }
+
+   /** =====================
+   *  PLAYLIST-SONG
+   *  ===================== */
 
   /** Get songs inside a playlist */
   static async getSongsInPlaylist(playlistId) {
@@ -140,16 +192,19 @@ class RemixMatchApi {
     await this.request(`playlist-songs/${playlistId}/${songId}`, {}, "delete");
   }
 
-  /** Delete a playlist by ID */
-  static async deletePlaylist(playlistId) {
-    await this.request(`playlists/${playlistId}`, {}, "delete");
+  /** Reorder songs in a playlist using Spotify track IDs */
+  static async reorderPlaylistSongs(playlistId, orderedTrackIds) {
+    const res = await this.request(
+      `playlist-songs/${playlistId}/songs/reorder`,
+      { orderedTrackIds },
+      "patch"
+    );
+    return res.reordered;
   }
 
-  /** Create a new playlist */
-  static async createPlaylist(data) {
-    const res = await this.request("playlists", data, "post");
-    return res.playlist; // ⬅️ IMPORTANT
-  }
+   /** =====================
+   *  LIVES
+   *  ===================== */
 
   /** Get all public live listening sessions */
   static async getPublicSessions() {
@@ -168,48 +223,22 @@ class RemixMatchApi {
     const res = await this.request(`lives/${sessionId}`); 
     return res.session;
   }
+  
 
-  /** Share a playlist with another user by username */
-  static async sharePlaylist({ playlistId, username }) {
-    const res = await this.request(`playlist-shares`, {
-      playlistId,
-      username,
-    }, "post");
-    return res.share;
-  }
+  /** =====================
+   *  VOTES
+   *  ===================== */
 
-  /** Delete a playlist by ID */
-  static async deletePlaylist(playlistId) {
-    const res = await this.request(`playlists/${playlistId}`, {}, "delete");
-    return res.deleted;
-  }
-
-  /** Update playlist name */
-  static async updatePlaylistName(playlistId, newName) {
-    const res = await this.request(`playlists/${playlistId}`, { name: newName }, "patch");
-    return res.playlist;
-  }
-
-  /** Reorder songs in a playlist using Spotify track IDs */
-  static async reorderPlaylistSongs(playlistId, orderedTrackIds) {
-    const res = await this.request(
-      `playlist-songs/${playlistId}/songs/reorder`,
-      { orderedTrackIds },
-      "patch"
-    );
-    return res.reordered;
+  /** Get all votes by the logged-in user */
+  static async getUserVotes() {
+    const res = await this.request("votes/user");
+    return res.votes;
   }
 
   /** Get vote totals for a playlist */
   static async getPlaylistVotes(playlistId) {
     const res = await this.request(`votes/${playlistId}`);
     return res;
-  }
-
-  /** Get all votes by current user */
-  static async getUserVotes() {
-    const res = await this.request("votes/user");
-    return res.votes;
   }
 
   /** Cast a vote (1 for upvote, -1 for downvote) */
