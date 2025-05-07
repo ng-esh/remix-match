@@ -20,10 +20,10 @@ const spotifyRoutes = require("./routes/spotify");
 const authRoutes = require("./routes/auth");
 
 
-
 app.use(morgan('dev'));
 app.use(cors());
 app.use(authenticateJWT);
+
 
 // Add routes here later
 app.use("/", userRoutes);

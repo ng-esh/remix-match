@@ -35,22 +35,6 @@ router.get("/users/username/:username", async function (req, res, next) {
   }
 });
 
-// /**
-//  * GET /users/:userId
-//  * 
-//  * Get user info by user ID.
-//  * Authorization: must be logged in and correct user.
-//  */
-router.get("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
-  try {
-    const user = await User.getById(req.params.userId);
-    if (!user) throw new BadRequestError("User not found");
-    return res.json({ user });
-  } catch (err) {
-    return next(err);
-  }
-});
-
 /**
  * GET /users/search?query=... => [{ id, username }]
  * 
@@ -76,6 +60,24 @@ router.get("/search", ensureLoggedIn, async function (req, res, next) {
     return next(err);
   }
 });
+
+
+// /**
+//  * GET /users/:userId
+//  * 
+//  * Get user info by user ID.
+//  * Authorization: must be logged in and correct user.
+//  */
+router.get("/users/:userId", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+  try {
+    const user = await User.getById(req.params.userId);
+    if (!user) throw new BadRequestError("User not found");
+    return res.json({ user });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 
 
 /**
