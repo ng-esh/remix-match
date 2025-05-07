@@ -88,6 +88,47 @@ async function fetchAccessToken() {
   
       return res.status(500).json({ error: err.message || "unexpected error" });
     }
+
   });
+
+  // GET /spotify/track/:id
+router.get("/track/:id", async (req, res, next) => {
+  const trackId = req.params.id;
+
+  if (!trackId) {
+    return res.status(400).json({ error: "Track ID required" });
+  }
+
+  try {
+    const token = await fetchAccessToken();
+
+    const resp = await axios.get(`https://api.spotify.com/v1/tracks/${trackId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const item = resp.data;
+
+    const track = {
+      id: item.id,
+      name: item.name,
+      artist: item.artists[0]?.name,
+      album: item.album.name,
+      albumCover: item.album.images[0]?.url,
+      spotifyUrl: item.external_urls.spotify,
+      previewUrl: item.preview_url,
+    };
+
+    return res.json({ track });
+
+  } catch (err) {
+    const status = err.response?.status;
+    if (status === 404) {
+      return res.status(404).json({ error: "Track not found" });
+    }
+
+    return res.status(500).json({ error: "Failed to fetch track details" });
+  }
+});
+
    
 module.exports = router;
