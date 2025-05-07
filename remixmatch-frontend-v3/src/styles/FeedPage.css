@@ -25,7 +25,15 @@
   font-weight: 700;
   margin-bottom: 1rem;
   font-size: 1.1rem;
+  color: #ffffff;
+  text-decoration: none;
+  display: block;
 }
+
+.sidebar-header:hover {
+  color: #1db954; /* Spotify green */
+}
+
 
 .sidebar-list {
   list-style: none;

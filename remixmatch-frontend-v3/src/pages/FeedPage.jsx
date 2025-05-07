@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import RemixMatchApi from "../api/RemixMatchApi";
 import "../styles/FeedPage.css";
@@ -69,7 +70,9 @@ function FeedPage() {
   return (
     <div className={`feed-container ${darkMode ? "dark-mode" : ""}`}>
       <aside className="feed-sidebar">
-        <div className="sidebar-header">Your Library</div>
+       <div>
+        <Link to="/feed" className="sidebar-header"> Your Library</Link>
+        </div>
         <ul className="sidebar-list">
           <li>Liked Songs</li>
           <li>Playlists</li>
@@ -153,5 +156,5 @@ function FeedPage() {
     </div>
   );
  }
- 
+
 export default FeedPage;
