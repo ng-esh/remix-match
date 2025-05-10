@@ -104,10 +104,6 @@ class PlaylistSong {
       [playlistId]
     );
 
-    if (result.rows.length === 0) {
-      throw new NotFoundError(`No songs found in playlist with ID ${playlistId}`);
-    }
-
     return result.rows;
   }
 

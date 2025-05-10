@@ -86,10 +86,6 @@ class Share {
       [toUserId]
     );
 
-    if (result.rows.length === 0) {
-      throw new NotFoundError(`No playlists have been shared with user ID ${toUserId}`);
-    }
-
     return result.rows;
   }
 

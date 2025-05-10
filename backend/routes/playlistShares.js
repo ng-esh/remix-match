@@ -89,6 +89,7 @@ router.get("/:playlistId/users", ensureLoggedIn, async function (req, res, next)
  */
 router.get("/user/:userId", ensureLoggedIn, async function (req, res, next) {
   try {
+    console.log("🎧 HIT: GET /playlist-shares/user/:userId");
     const { userId } = req.params;
 
     if (Number(userId) !== res.locals.user.id) {
@@ -96,7 +97,7 @@ router.get("/user/:userId", ensureLoggedIn, async function (req, res, next) {
     }
 
     const playlists = await Share.getSharedPlaylistsForUser(userId);
-    return res.json({ playlists });
+    return res.json({ sharedPlaylists: playlists });
   } catch (err) {
     return next(err);
   }

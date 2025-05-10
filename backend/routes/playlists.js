@@ -35,7 +35,7 @@ const playlistSearchQuerySchema = require("../schema/playlistSearchQuery.json");
 router.get("/", ensureLoggedIn, async function (req, res, next) {
   try {
     const user = res.locals.user;
-    const playlists = await Playlist.getAll(user?.id);
+    const playlists = await Playlist.getAll({ userId: user?.id });
     return res.json({ playlists });
   } catch (err) {
     return next(err);
