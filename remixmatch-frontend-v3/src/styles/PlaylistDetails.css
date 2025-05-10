@@ -58,10 +58,6 @@
     background-color: #dc2626;
   }
   
-  .playlist-details-actions {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
   
   .playlist-delete-btn {
     background-color: #ef4444;
@@ -123,4 +119,88 @@
     background-color: #f9fafb;
     border-radius: 0.5rem;
   }
+
+  /* === Enhanced Action Buttons Styling === */
+.playlist-details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.75rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Shared button styles */
+.playlist-details-actions button,
+.share-btn,
+.save-order-btn {
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  border-radius: 2rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 0.95rem;
+}
+
+/* Button colors */
+.share-btn {
+  background-color: #ec4899;
+  color: white;
+}
+
+.playlist-delete-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.edit-name-btn,
+.reorder-toggle-btn,
+.save-order-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Hover interaction */
+.playlist-details-actions button:hover,
+.share-btn:hover,
+.save-order-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Form input for rename */
+.edit-name-form {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.edit-name-form input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+}
+
+/* Layout split */
+.playlist-details-layout {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.playlist-sidebar {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.playlist-main {
+  flex: 1;
+}
+
   

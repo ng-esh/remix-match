@@ -1,3 +1,4 @@
+
 /**
  * PlaylistDetails Page
  * 
@@ -15,7 +16,6 @@ import SharePlaylistForm from "../components/SharePlaylistForm";
 import PlaylistSongItem from "../components/PlaylistSongItem";
 import SortableSongItem from "../components/SortableSongItem";
 import VoteButton from "../components/VoteButton";
-
 import {
   DndContext,
   closestCenter,
@@ -48,9 +48,30 @@ function PlaylistDetails() {
       try {
         const playlistRes = await RemixMatchApi.getPlaylistById(id);
         const songsRes = await RemixMatchApi.getSongsInPlaylist(id);
+
+        const enrichedSongs = await Promise.all(
+          songsRes.map(async (song) => {
+            try {
+              const details = await RemixMatchApi.getSpotifyTrackById(song.track_id);
+              return {
+                ...song,
+                song_title: details.name,
+                song_artist: details.artist,
+                album: details.album,
+                albumCover: details.albumCover,
+                spotifyUrl: details.spotifyUrl,
+                previewUrl: details.previewUrl,
+              };
+            } catch (err) {
+              console.error(`Failed to fetch metadata for ${song.track_id}`);
+              return song;
+            }
+          })
+        );
+
         setPlaylist(playlistRes);
         setNewName(playlistRes.name);
-        setSongs(songsRes);
+        setSongs(enrichedSongs);
       } catch (err) {
         console.error("Failed to load playlist:", err);
       } finally {
@@ -75,22 +96,20 @@ function PlaylistDetails() {
     }
   }
 
-  async function handleRemoveSong(songId) {
-    const confirmDelete = window.confirm("Are you sure you want to remove this song from the playlist?");
+  async function handleRemoveSong(trackId) {
+    const confirmDelete = window.confirm("Are you sure you want to remove this song?");
     if (!confirmDelete) return;
-
     try {
-      await RemixMatchApi.removeSongFromPlaylist(id, songId);
-      setSongs(songs => songs.filter(song => song.id !== songId));
+      await RemixMatchApi.removeSongFromPlaylist(id, trackId);
+      setSongs(songs => songs.filter(s => s.track_id !== trackId));
     } catch (err) {
       console.error("Failed to remove song:", err);
     }
   }
 
   async function handleDeletePlaylist() {
-    const confirmDelete = window.confirm("Are you sure you want to delete this entire playlist?");
+    const confirmDelete = window.confirm("Are you sure you want to delete this playlist?");
     if (!confirmDelete) return;
-
     try {
       await RemixMatchApi.deletePlaylist(id);
       navigate("/playlists");
@@ -135,53 +154,68 @@ function PlaylistDetails() {
     );
   }
 
-  const isOwner = currentUser && currentUser.id === playlist.ownerId;
+  const isOwner = currentUser && currentUser.id === playlist.userId;
 
   return (
-    <div className="playlist-details-container">
-      <h1 className="playlist-details-title">{playlist.name}</h1>
-      <button onClick={() => setShowShareForm(!showShareForm)} className="share-btn">
-        {showShareForm ? "Close Share Form" : "Share Playlist"}
-      </button>
-
-      {showShareForm && (
-        <SharePlaylistForm
-          playlistId={playlist.id}
-          onClose={() => setShowShareForm(false)}
-        />
-      )}
-
-      {isOwner && (
-        <div className="playlist-details-actions">
-          <button className="playlist-delete-btn" onClick={handleDeletePlaylist}>
-            Delete Playlist
+    
+      <div className="playlist-details-layout">
+        <aside className="playlist-sidebar">
+          <h1 className="playlist-details-title">{playlist.name}</h1>
+    
+          <button onClick={() => setShowShareForm(!showShareForm)} className="share-btn">
+            {showShareForm ? "Close Share Form" : "Share Playlist"}
           </button>
-
-          <button onClick={() => setShowEditForm(!showEditForm)} className="edit-name-btn">
-            {showEditForm ? "Cancel Edit" : "Edit Name"}
-          </button>
-
-          {showEditForm && (
-            <form onSubmit={handleRename} className="edit-name-form">
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                required
-              />
-              <button type="submit" disabled={isUpdating}>
-                {isUpdating ? "Updating..." : "Save"}
+    
+          {isOwner && (
+            <div className="playlist-details-actions">
+              <button className="playlist-delete-btn" onClick={handleDeletePlaylist}>Delete Playlist</button>
+              <button onClick={() => setShowEditForm(!showEditForm)} className="edit-name-btn">
+                {showEditForm ? "Cancel Edit" : "Edit Name"}
               </button>
-            </form>
+    
+              {showEditForm && (
+                <form onSubmit={handleRename} className="edit-name-form">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    required
+                  />
+                  <button type="submit" disabled={isUpdating}>
+                    {isUpdating ? "Updating..." : "Save"}
+                  </button>
+                </form>
+              )}
+    
+              <button onClick={() => setIsReordering(!isReordering)} className="reorder-toggle-btn">
+                {isReordering ? "Cancel Reorder" : "Reorder Songs"}
+              </button>
+            </div>
           )}
-
-          <button
-            onClick={() => setIsReordering(!isReordering)}
-            className="reorder-toggle-btn"
-          >
-            {isReordering ? "Cancel Reorder" : "Reorder Songs"}
-          </button>
-
+        </aside>
+    
+        <section className="playlist-main">
+          {showShareForm && (
+            <SharePlaylistForm playlistId={playlist.id} onClose={() => setShowShareForm(false)} />
+          )}
+    
+          {songs.length === 0 ? (
+            <p className="playlist-details-empty">This playlist is currently empty.</p>
+          ) : (
+            !isReordering && (
+              <ul className="playlist-songs-list">
+                {songs.map(song => (
+                  <PlaylistSongItem
+                    key={song.track_id}
+                    song={song}
+                    isOwner={isOwner}
+                    onRemove={() => handleRemoveSong(song.track_id)}
+                  />
+                ))}
+              </ul>
+            )
+          )}
+    
           {isReordering && (
             <>
               <DndContext
@@ -198,39 +232,22 @@ function PlaylistDetails() {
                   ))}
                 </SortableContext>
               </DndContext>
-
+    
               <button onClick={handleSaveReorder} className="save-order-btn">
                 Save New Order
               </button>
             </>
           )}
-        </div>
-      )}
-
-      {songs.length === 0 ? (
-        <p className="playlist-details-empty">This playlist is currently empty.</p>
-      ) : (
-        !isReordering && (
-          <ul className="playlist-songs-list">
-            {songs.map(song => (
-              <PlaylistSongItem
-                key={song.id}
-                song={song}
-                isOwner={isOwner}
-                onRemove={() => handleRemoveSong(song.id)}
-              />
-            ))}
-          </ul>
-        )
-      )}
-      
-      {playlist.isPublic && (
-          <div className="playlist-vote-block">
-            <VoteButton playlistId={playlist.id} />
-          </div>
-        )}
-    </div>
-  );
+    
+          {playlist.isPublic && (
+            <div className="playlist-vote-block">
+              <VoteButton playlistId={playlist.id} />
+            </div>
+          )}
+        </section>
+      </div>
+    );
+     
 }
 
 export default PlaylistDetails;

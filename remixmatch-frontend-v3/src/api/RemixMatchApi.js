@@ -102,6 +102,13 @@ class RemixMatchApi {
     return res.track;
   }
 
+  /** Get full track metadata from Spotify by track ID */
+  static async getSpotifyTrackById(trackId) {
+    const res = await this.request(`spotify/track/${trackId}`);
+    return res.track;
+  }
+
+
   /** =====================
    *  SONG-SHARE
    *  ===================== */
@@ -181,9 +188,19 @@ class RemixMatchApi {
    *  PLAYLIST-SONG
    *  ===================== */
 
+  /** Add a song to a playlist */
+  static async addSongToPlaylist(playlistId, trackId) {
+    const res = await this.request(
+      `playlist-songs/${playlistId}/songs`,
+      { trackId },
+      "post"
+    );
+    return res.added;
+  }
+
   /** Get songs inside a playlist */
   static async getSongsInPlaylist(playlistId) {
-    const res = await this.request(`playlist-songs/${playlistId}`);
+    const res = await this.request(`playlist-songs/${playlistId}/songs`);
     return res.songs;
   }
 

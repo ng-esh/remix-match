@@ -1,10 +1,23 @@
+// components/SongCard.jsx
+
 import React, { useState } from "react";
 import ShareFormModal from "./ShareFormModal";
 import "../styles/SongCard.css";
 
-function SongCard({ song }) {
-  const { name, artist, album, albumCover, spotifyUrl, previewUrl, id } = song;
+/**
+ * SongCard Component
+ *
+ * Reusable display card for a Spotify track.
+ * Can support both sharing and add-to-playlist behavior depending on props.
+ *
+ * Props:
+ * - song: { id, name, artist, album, albumCover, spotifyUrl, previewUrl }
+ * - showShare: boolean (optional) – if true, shows a Share button
+ * - onAddToPlaylist: function (optional) – if provided, shows an Add button that calls this function with track ID
+ */
 
+function SongCard({ song, showShare = true, onAddToPlaylist = null }) {
+  const { name, artist, album, albumCover, spotifyUrl, previewUrl, id } = song;
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -20,6 +33,7 @@ function SongCard({ song }) {
           {previewUrl && (
             <audio controls src={previewUrl} className="song-preview" />
           )}
+
           <a
             href={spotifyUrl}
             target="_blank"
@@ -29,9 +43,17 @@ function SongCard({ song }) {
             Open in Spotify
           </a>
 
-          <button className="share-btn" onClick={() => setShowModal(true)}>
-            Share
-          </button>
+          {showShare && (
+            <button className="share-btn" onClick={() => setShowModal(true)}>
+              Share
+            </button>
+          )}
+
+          {onAddToPlaylist && (
+            <button className="add-btn" onClick={() => onAddToPlaylist(id)}>
+              ➕ Add to Playlist
+            </button>
+          )}
         </div>
       </div>
 
