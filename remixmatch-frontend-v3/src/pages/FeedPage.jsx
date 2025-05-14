@@ -74,10 +74,11 @@ function FeedPage() {
         <Link to="/feed" className="sidebar-header"> Your Library</Link>
         </div>
         <ul className="sidebar-list">
-          <li>Liked Songs</li>
-          <li>Playlists</li>
-          <li>Albums</li>
-          <li>Podcasts</li>
+          <li>
+          <Link to="/playlists" className="sidebar-link">Playlists</Link>
+          </li>
+          <li>Live sessions</li>
+         
         </ul>
       </aside>
   

@@ -164,6 +164,11 @@ class RemixMatchApi {
     return res.deleted;
   }
 
+  // Toggle playlist visibility
+  static async updatePlaylistVisibility(playlistId, isPublic) {
+    const res = await this.request(`playlists/${playlistId}/visibility`, { isPublic }, "patch");
+    return res.playlist;
+  }
 
    /** =====================
    *  PLAYLIST-SHARE

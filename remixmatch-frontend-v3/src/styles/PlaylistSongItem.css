@@ -31,7 +31,9 @@
 }
 
 .playlist-song-title {
-  font-size: 1.125rem;
+  color: hotpink !important;
+  font-size: 3rem !important;
+  /* font-size: 1.125rem; */
   font-weight: 700;
   color: #f3f4f6;
 }
@@ -78,4 +80,15 @@
 
 .playlist-song-remove-btn:hover {
   background-color: #dc2626;
+}
+
+/* Better styling for dark mode preview player */
+.song-preview-player {
+  background-color: #111827;
+  border: 1px solid #374151;
+  border-radius: 0.375rem;
+  width: 200px;
+  height: 36px;
+  padding: 0.25rem;
+  color-scheme: dark;
 }

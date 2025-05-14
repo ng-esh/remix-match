@@ -20,6 +20,7 @@ function SongCard({ song, showShare = true, onAddToPlaylist = null }) {
   const { name, artist, album, albumCover, spotifyUrl, previewUrl, id } = song;
   const [showModal, setShowModal] = useState(false);
 
+  console.log("🎧 Preview URL for track:", previewUrl);
   return (
     <div className="song-card">
       <img src={albumCover} alt={`${album} cover`} className="song-card-img" />
@@ -34,14 +35,16 @@ function SongCard({ song, showShare = true, onAddToPlaylist = null }) {
             <audio controls src={previewUrl} className="song-preview" />
           )}
 
-          <a
-            href={spotifyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="spotify-link"
-          >
-            Open in Spotify
-          </a>
+          {spotifyUrl && (
+            <a
+              href={spotifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="spotify-link"
+            >
+              Open in Spotify
+            </a>
+          )}
 
           {showShare && (
             <button className="share-btn" onClick={() => setShowModal(true)}>
