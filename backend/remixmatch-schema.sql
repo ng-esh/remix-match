@@ -21,6 +21,19 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Songs
+CREATE TABLE songs (
+  track_id TEXT PRIMARY KEY,                -- Spotify ID
+  name TEXT NOT NULL,
+  artist TEXT NOT NULL,
+  album TEXT,
+  album_cover TEXT,
+  spotify_url TEXT,
+  preview_url TEXT,                         -- from Spotify or Deezer
+  preview_source TEXT CHECK (preview_source IN ('spotify', 'deezer')), -- optional
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Playlists
 CREATE TABLE playlists (
   id SERIAL PRIMARY KEY,
