@@ -130,17 +130,17 @@ afterAll(async () => {
           toUserId: testUserIds[1]
         })
         .set("authorization", `Bearer ${testUserTokens[0]}`);
-  
+    
       const res = await request(app)
         .get(`/playlist-shares/user/${testUserIds[1]}`)
         .set("authorization", `Bearer ${testUserTokens[1]}`);
-  
+    
       expect(res.statusCode).toBe(200);
-      expect(res.body.playlists.length).toBeGreaterThan(0);
-      expect(res.body.playlists[0]).toHaveProperty("id");
-      expect(res.body.playlists[0]).toHaveProperty("name");
+      expect(res.body.sharedPlaylists.length).toBeGreaterThan(0);
+      expect(res.body.sharedPlaylists[0]).toHaveProperty("id");
+      expect(res.body.sharedPlaylists[0]).toHaveProperty("name");
     });
-  
+    
     test("forbids access to shared playlists of another user", async () => {
       const res = await request(app)
         .get(`/playlist-shares/user/${testUserIds[1]}`)

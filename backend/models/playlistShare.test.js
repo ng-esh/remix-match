@@ -86,11 +86,11 @@ describe("Share.getSharedPlaylistsForUser", function () {
     }));
   });
 
-  test("throws NotFoundError if no playlists shared with user", async function () {
-    await expect(
-      Share.getSharedPlaylistsForUser(testUserIds[1])
-    ).rejects.toThrow(NotFoundError);
+  test("returns empty array if no playlists shared with user", async function () {
+    const playlists = await Share.getSharedPlaylistsForUser(testUserIds[1]);
+    expect(playlists).toEqual([]);
   });
+  
 });
 
 describe("Share.removeShareIfAuthorized", function () {

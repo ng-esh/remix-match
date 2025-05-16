@@ -129,18 +129,18 @@ describe("PlaylistSong.getSongsInPlaylist", function () {
     ]);
   });
 
-  test("throws NotFoundError if no songs in playlist", async function () {
+  test("returns empty array if no songs in playlist", async function () {
     const newPlaylistRes = await db.query(
       `INSERT INTO playlists (user_id, name, is_public)
        VALUES ($1, 'Empty Playlist', TRUE)
        RETURNING id`,
       [testUserIds[0]]
     );
-
-    await expect(
-      PlaylistSong.getSongsInPlaylist(newPlaylistRes.rows[0].id)
-    ).rejects.toThrow(NotFoundError);
+  
+    const songs = await PlaylistSong.getSongsInPlaylist(newPlaylistRes.rows[0].id);
+    expect(songs).toEqual([]);
   });
+  
 });
 
 describe("PlaylistSong.reorderSongs", function () {

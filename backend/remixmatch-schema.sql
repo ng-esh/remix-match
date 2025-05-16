@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS shares;
 DROP TABLE IF EXISTS shared_playlists;
 DROP TABLE IF EXISTS playlist_songs;
 DROP TABLE IF EXISTS playlists;
+DROP TABLE IF EXISTS songs;
 DROP TABLE IF EXISTS users;
 
 -- Users
