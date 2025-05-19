@@ -86,3 +86,23 @@ router.get("/:id", ensureLoggedIn, async function (req, res, next) {
   
 
 module.exports = router;
+
+// ✅ Use Cases Where routes/songs.js Would Be Needed
+// 1. User-Specific Songs Page
+// Route: GET /songs/user/:userId
+// Purpose: Return all songs the user has:
+// - Added to playlists
+// - Shared with others
+// - Listened to in sessions
+// - This powers a "My Songs" or "Songs I've Added" tab.
+
+// 2. Global Song Explorer
+// Route: GET /songs
+// Purpose: Return all unique songs stored in the DB (with optional filters)
+// - Powers a "Discover Music" or "Popular Tracks" page.
+
+// 3. Admin Tools (optional)
+// Routes:
+// PATCH /songs/:trackId — update bad metadata
+// DELETE /songs/:trackId — purge old/test songs
+// - Mostly useful for moderation or test cleanup
