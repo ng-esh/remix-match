@@ -8,6 +8,8 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
+const Song = require("./song"); // ✅ Import your Song model
+
 
 /** PlaylistSong class for managing song entries in playlists */
 class PlaylistSong {
@@ -23,6 +25,8 @@ class PlaylistSong {
    * @throws {BadRequestError} - If song already exists in playlist.
    */
   static async addSongToPlaylist({ playlistId, trackId, userId, position }) {
+    await Song.findOrCreateBySpotifyId(trackId);
+    
     try {
       // Check if song already exists in playlist
       const duplicateCheck = await db.query(

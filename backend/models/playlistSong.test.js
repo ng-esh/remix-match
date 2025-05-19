@@ -1,4 +1,15 @@
 // models/playlistSong.test.js
+jest.mock("./song", () => ({
+  findOrCreateBySpotifyId: jest.fn().mockResolvedValue({
+    track_id: "spotify:track:mocked",
+    name: "Mock Song",
+    artist: "Mock Artist",
+    album: "Mock Album",
+    album_cover: "https://example.com/mock.jpg",
+    spotify_url: "https://open.spotify.com/track/mocked",
+    preview_url: "https://example.com/preview.mp3"
+  })
+}));
 
 const db = require("../db");
 const PlaylistSong = require("./playlistSong");

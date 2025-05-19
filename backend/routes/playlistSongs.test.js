@@ -1,3 +1,16 @@
+// ✅ MOCKED Song model to bypass real Spotify API calls in route tests
+jest.mock("../models/song", () => ({
+  findOrCreateBySpotifyId: jest.fn().mockResolvedValue({
+    track_id: "spotify:track:mocked",
+    name: "Mock Song",
+    artist: "Mock Artist",
+    album: "Mock Album",
+    album_cover: "https://example.com/mock.jpg",
+    spotify_url: "https://open.spotify.com/track/mocked",
+    preview_url: "https://example.com/preview.mp3"
+  })
+}));
+
 const request = require("supertest");
 const app = require("../app");
 const db = require("../db");
