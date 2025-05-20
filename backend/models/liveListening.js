@@ -23,29 +23,32 @@ class LiveListening {
    * @param {string} data.sessionName - Name of the session.
    * @param {string} data.sourceType - Type of source (playlist, track, or album).
    * @param {string} data.sourceId - Spotify ID for the source.
+   * @param {boolean} data.isPublic - Whether the session is public or private.
    * @returns {Object} Newly created session data.
    * @throws {BadRequestError} If required fields are missing.
    */
-  static async createSession({ hostId, sessionName, sourceType, sourceId }) {
+  static async createSession({ hostId, sessionName, sourceType, sourceId, isPublic }) {
     if (!hostId || !sessionName || !sourceType || !sourceId) {
       throw new BadRequestError("Missing required fields to create session");
     }
 
     const result = await db.query(
-      `INSERT INTO live_sessions (host_id, session_name, source_type, source_id, is_active)
-       VALUES ($1, $2, $3, $4, TRUE)
-       RETURNING id, host_id, session_name, source_type, source_id, is_active, created_at`,
-      [hostId, sessionName, sourceType, sourceId]
+      `INSERT INTO live_sessions 
+        (host_id, session_name, source_type, source_id, is_active, is_public)
+      VALUES ($1, $2, $3, $4, TRUE, $5)
+      RETURNING id, host_id, session_name, source_type, source_id, is_active, is_public, created_at`,
+      [hostId, sessionName, sourceType, sourceId, isPublic ?? false]
     );
 
     await db.query(
       `INSERT INTO live_session_users (session_id, user_id)
-       VALUES ($1, $2)`,
+      VALUES ($1, $2)`,
       [result.rows[0].id, hostId]
     );
 
     return result.rows[0];
   }
+
 
   /** Join an existing session if it's active */
   static async joinSession(sessionId, userId) {
@@ -180,10 +183,6 @@ class LiveListening {
     return result.rows;
 }
 
-
-  
-
-  
   /** End a session if the user is the host */
   static async endSession(sessionId, userId) {
     const sessionRes = await db.query(

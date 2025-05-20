@@ -25,9 +25,9 @@ class PlaylistSong {
    * @throws {BadRequestError} - If song already exists in playlist.
    */
   static async addSongToPlaylist({ playlistId, trackId, userId, position }) {
-    await Song.findOrCreateBySpotifyId(trackId);
-    
     try {
+      await Song.findOrCreateBySpotifyId(trackId);
+      
       // Check if song already exists in playlist
       const duplicateCheck = await db.query(
         `SELECT 1 FROM playlist_songs WHERE playlist_id = $1 AND track_id = $2`,
