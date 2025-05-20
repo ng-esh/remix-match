@@ -1,15 +1,3 @@
-/**
- * PlaylistSongItem Component
- * 
- * Displays one song inside a playlist.
- * Includes:
- * - Album cover
- * - Song title and artist
- * - Spotify link
- * - Audio preview (if available)
- * - Remove button if user owns the playlist
- */
-
 import React from "react";
 import "../styles/PlaylistSongItem.css";
 
@@ -20,10 +8,12 @@ function PlaylistSongItem({ song, isOwner, onRemove }) {
     album,
     albumCover,
     spotifyUrl,
-    previewUrl
+    previewUrl,
+    previewSource
   } = song;
 
   console.log("🎧 Preview URL for track:", previewUrl);
+  console.log("🔍 Preview Source:", previewSource);
 
   return (
     <li className="playlist-song-item-card">
@@ -39,6 +29,19 @@ function PlaylistSongItem({ song, isOwner, onRemove }) {
         <p className="playlist-song-album">{album}</p>
 
         <div className="playlist-song-links">
+          {previewUrl ? (
+            <audio
+              controls
+              className="song-preview-player"
+              src={previewUrl}
+              onError={() =>
+                console.warn(`🔇 No preview available from ${previewSource || "unknown"}`)
+              }
+            />
+          ) : (
+            <p className="no-preview-msg">🔇 No preview available</p>
+          )}
+
           {spotifyUrl && (
             <a
               href={spotifyUrl}
@@ -48,10 +51,6 @@ function PlaylistSongItem({ song, isOwner, onRemove }) {
             >
               Open in Spotify
             </a>
-          )}
-
-          {previewUrl && (
-            <audio controls className="song-preview-player" src={previewUrl} />
           )}
         </div>
       </div>

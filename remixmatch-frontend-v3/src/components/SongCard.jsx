@@ -1,26 +1,30 @@
-// components/SongCard.jsx
-
 import React, { useState } from "react";
 import ShareFormModal from "./ShareFormModal";
 import "../styles/SongCard.css";
 
-/**
- * SongCard Component
- *
- * Reusable display card for a Spotify track.
- * Can support both sharing and add-to-playlist behavior depending on props.
- *
- * Props:
- * - song: { id, name, artist, album, albumCover, spotifyUrl, previewUrl }
- * - showShare: boolean (optional) – if true, shows a Share button
- * - onAddToPlaylist: function (optional) – if provided, shows an Add button that calls this function with track ID
- */
-
 function SongCard({ song, showShare = true, onAddToPlaylist = null }) {
-  const { name, artist, album, albumCover, spotifyUrl, previewUrl, id } = song;
+  const {
+    id,
+    name,
+    artist,
+    album,
+    albumCover,
+    spotifyUrl,
+    previewUrl,
+    previewSource
+  } = song;
+
   const [showModal, setShowModal] = useState(false);
+  const [previewFailed, setPreviewFailed] = useState(false);
 
   console.log("🎧 Preview URL for track:", previewUrl);
+  console.log("🔍 Preview Source:", previewSource);
+
+  function handleAudioError() {
+    console.warn(`🔇 No preview available from ${previewSource || "unknown"}`);
+    setPreviewFailed(true);
+  }
+
   return (
     <div className="song-card">
       <img src={albumCover} alt={`${album} cover`} className="song-card-img" />
@@ -31,8 +35,15 @@ function SongCard({ song, showShare = true, onAddToPlaylist = null }) {
         <p className="song-card-album">{album}</p>
 
         <div className="song-card-links">
-          {previewUrl && (
-            <audio controls src={previewUrl} className="song-preview" />
+          {previewUrl && !previewFailed ? (
+            <audio
+              controls
+              src={previewUrl}
+              className="song-preview"
+              onError={handleAudioError}
+            />
+          ) : (
+            <p className="no-preview-msg">🔇 No preview available</p>
           )}
 
           {spotifyUrl && (

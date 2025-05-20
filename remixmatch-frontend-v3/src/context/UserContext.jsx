@@ -43,7 +43,18 @@ function UserProvider({ children }) {
     RemixMatchApi.setToken(newToken); // ✅ Immediately usable for next API call
     localStorage.setItem("remixmatch-token", newToken);
     setToken(newToken);
+
+  // ⬇️ Immediately sets currentUser without waiting for useEffect
+  try {
+    const { username } = jwtDecode(newToken);
+    const user = await RemixMatchApi.getCurrentUser(username);
+    setCurrentUser(user);
+  } catch (err) {
+    console.error("Login failed to load user:", err);
+    setCurrentUser(null);
   }
+}
+  
   
   
   /** Handle signup from SignupPage */
@@ -52,6 +63,16 @@ function UserProvider({ children }) {
     RemixMatchApi.setToken(newToken);
     localStorage.setItem("remixmatch-token", newToken);
     setToken(newToken);
+
+   // ⬇️ Immediately sets currentUser without waiting for useEffect
+    try {
+      const { username } = jwtDecode(newToken);
+      const user = await RemixMatchApi.getCurrentUser(username);
+      setCurrentUser(user);
+    } catch (err) {
+      console.error("Signup failed to load user:", err);
+      setCurrentUser(null);
+    }
   }
   /** Handle logout */
   function logout() {

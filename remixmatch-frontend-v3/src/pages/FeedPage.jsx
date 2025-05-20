@@ -77,7 +77,10 @@ function FeedPage() {
           <li>
           <Link to="/playlists" className="sidebar-link">Playlists</Link>
           </li>
-          <li>Live sessions</li>
+          <li>
+          <Link to="/live" className="sidebar-link">Sessions</Link>
+          </li>
+          
          
         </ul>
       </aside>

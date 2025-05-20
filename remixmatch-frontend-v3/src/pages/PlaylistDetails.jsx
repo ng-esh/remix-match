@@ -1,12 +1,3 @@
-
-/**
- * PlaylistDetails Page
- * 
- * Displays a playlist's songs.
- * If user owns the playlist, allows them to remove songs, rename the playlist,
- * delete the playlist, share it, and reorder songs using drag-and-drop.
- */
-
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
@@ -47,8 +38,6 @@ function PlaylistDetails() {
   const [showSearch, setShowSearch] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor));
 
-
-
   useEffect(() => {
     async function fetchPlaylist() {
       try {
@@ -58,18 +47,19 @@ function PlaylistDetails() {
         const enrichedSongs = await Promise.all(
           songsRes.map(async (song) => {
             try {
-              const details = await RemixMatchApi.getSpotifyTrackById(song.track_id);
+              const details = await RemixMatchApi.getSongById(song.track_id);
               return {
                 ...song,
                 song_title: details.name,
                 song_artist: details.artist,
                 album: details.album,
-                albumCover: details.albumCover,
-                spotifyUrl: details.spotifyUrl,
-                previewUrl: details.previewUrl,
+                albumCover: details.album_cover,
+                spotifyUrl: details.spotify_url,
+                previewUrl: details.preview_url,
+                previewSource: details.preview_source
               };
             } catch (err) {
-              console.error(`Failed to fetch metadata for ${song.track_id}`);
+              console.error(`Failed to enrich metadata for ${song.track_id}`);
               return song;
             }
           })
@@ -131,7 +121,7 @@ function PlaylistDetails() {
       console.error("Failed to toggle visibility:", err);
     }
   }
-  
+
   async function handleSaveReorder() {
     const orderedTrackIds = songs.map(s => s.track_id);
     try {
@@ -167,12 +157,22 @@ function PlaylistDetails() {
       await RemixMatchApi.addSongToPlaylist(id, trackId);
       setSearchResults([]);
       setSearchQuery("");
+
       const refreshed = await RemixMatchApi.getSongsInPlaylist(id);
       const enriched = await Promise.all(
         refreshed.map(async (s) => {
           try {
-            const d = await RemixMatchApi.getSpotifyTrackById(s.track_id);
-            return { ...s, song_title: d.name, song_artist: d.artist, album: d.album, albumCover: d.albumCover, spotifyUrl: d.spotifyUrl, previewUrl: d.previewUrl };
+            const d = await RemixMatchApi.getSongById(s.track_id);
+            return {
+              ...s,
+              song_title: d.name,
+              song_artist: d.artist,
+              album: d.album,
+              albumCover: d.album_cover,
+              spotifyUrl: d.spotify_url,
+              previewUrl: d.preview_url,
+              previewSource: d.preview_source
+            };
           } catch {
             return s;
           }
@@ -205,7 +205,6 @@ function PlaylistDetails() {
     <div className="playlist-details-layout">
       <aside className="playlist-sidebar">
         <h1 className="playlist-details-title">{playlist.name}</h1>
-
         <button onClick={() => setShowShareForm(!showShareForm)} className="share-btn">
           {showShareForm ? "Close Share Form" : "Share Playlist"}
         </button>
@@ -216,7 +215,6 @@ function PlaylistDetails() {
             <button onClick={() => setShowEditForm(!showEditForm)} className="edit-name-btn">
               {showEditForm ? "Cancel Edit" : "Edit Name"}
             </button>
-
             {showEditForm && (
               <form onSubmit={handleRename} className="edit-name-form">
                 <input
@@ -230,16 +228,12 @@ function PlaylistDetails() {
                 </button>
               </form>
             )}
-
             <button onClick={() => setIsReordering(!isReordering)} className="reorder-toggle-btn">
               {isReordering ? "Cancel Reorder" : "Reorder Songs"}
             </button>
-
             <button onClick={handleToggleVisibility} className="visibility-toggle-btn">
               {playlist.isPublic ? "🔒 Make Private" : "🌍 Make Public"}
             </button>
-
-            {/* ➕ Add Songs Toggle */}
             <button onClick={() => setShowSearch(!showSearch)} className="add-songs-btn">
               {showSearch ? "Hide Search" : "➕ Add Songs"}
             </button>
@@ -255,7 +249,6 @@ function PlaylistDetails() {
               onChange={e => setSearchQuery(e.target.value)}
             />
             <button onClick={handleSongSearch}>Search</button>
-
             <div className="search-results-sidebar">
               {searchResults.map(song => (
                 <div className="search-result-item" key={song.id}>
@@ -268,12 +261,10 @@ function PlaylistDetails() {
         )}
       </aside>
 
-
       <section className="playlist-main">
         {showShareForm && (
           <SharePlaylistForm playlistId={playlist.id} onClose={() => setShowShareForm(false)} />
         )}
-
         {songs.length === 0 ? (
           <p className="playlist-details-empty">This playlist is currently empty.</p>
         ) : (
@@ -290,30 +281,21 @@ function PlaylistDetails() {
             </ul>
           )
         )}
-
         {isReordering && (
           <>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext 
-              items={songs.map(s => s.track_id)} 
-              strategy={verticalListSortingStrategy}
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={songs.map(s => s.track_id)}
+                strategy={verticalListSortingStrategy}
               >
-
                 {songs.map(song => (
                   <SortableSongItem key={song.track_id} song={song} />
                 ))}
-
               </SortableContext>
             </DndContext>
-            
             <button onClick={handleSaveReorder} className="save-order-btn">Save New Order</button>
           </>
         )}
-
         {playlist.isPublic && (
           <div className="playlist-vote-block">
             <VoteButton playlistId={playlist.id} />

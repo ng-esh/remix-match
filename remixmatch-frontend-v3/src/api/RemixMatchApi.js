@@ -87,6 +87,16 @@ class RemixMatchApi {
   }
 
    /** =====================
+   *  SONGS
+   *  ===================== */
+
+  /** Get full song details from local backend song cache (includes Deezer fallback) */
+  static async getSongById(trackId) {
+    const res = await this.request(`songs/${trackId}`);
+    return res.song;
+  }
+ 
+   /** =====================
    *  SPOTIFY
    *  ===================== */
 
@@ -96,11 +106,12 @@ class RemixMatchApi {
     return res.results;
   }
 
-  /** Get full song details from Spotify by track ID */
+  /** Get full song metadata (Spotify + Deezer fallback) */
   static async getSpotifyTrackById(trackId) {
-    const res = await this.request(`spotify/track/${trackId}`);
-    return res.track;
+    const res = await this.request(`songs/${trackId}`);
+    return res.song;
   }
+
 
   /** Get full track metadata from Spotify by track ID */
   static async getSpotifyTrackById(trackId) {
@@ -180,13 +191,14 @@ class RemixMatchApi {
     return res.sharedPlaylists;
   }
 
-  /** Share a playlist with another user by username */
-  static async sharePlaylist({ playlistId, username }) {
-    const res = await this.request(`playlist-shares`, {
+  /** ✅ FIXED: Share a playlist by sending fromUserId + toUserId */
+  static async sharePlaylist({ playlistId, fromUserId, toUserId }) {
+    const res = await this.request("playlist-shares", {
       playlistId,
-      username,
+      fromUserId,
+      toUserId
     }, "post");
-    return res.share;
+    return res.shared;
   }
 
    /** =====================
@@ -210,8 +222,8 @@ class RemixMatchApi {
   }
 
   /** Remove a song from a playlist */
-  static async removeSongFromPlaylist(playlistId, songId) {
-    await this.request(`playlist-songs/${playlistId}/${songId}`, {}, "delete");
+  static async removeSongFromPlaylist(playlistId, trackId) {
+    await this.request(`playlist-songs/${playlistId}/songs/${trackId}`, {}, "delete");
   }
 
   /** Reorder songs in a playlist using Spotify track IDs */
@@ -245,6 +257,13 @@ class RemixMatchApi {
     const res = await this.request(`lives/${sessionId}`); 
     return res.session;
   }
+
+  // * Get all sessions hosted by the current user.
+  static async getHostedSessions() {
+    const res = await this.request("lives/host");
+    return res.sessions;
+  }
+  
   
 
   /** =====================

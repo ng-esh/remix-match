@@ -81,3 +81,9 @@
   padding: 0.25rem;
   color-scheme: light;
 }
+
+.no-preview-msg {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 0.5rem;
+}
